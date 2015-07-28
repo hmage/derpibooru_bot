@@ -6,6 +6,8 @@ require 'yaml'
 require 'net/http'
 require 'awesome_print'
 require 'open-uri'
+require 'erb'
+include ERB::Util
 
 config_filename = "settings.yaml"
 file_contents = YAML::load_file(config_filename)
@@ -16,14 +18,27 @@ telegram_token = loaded[:telegram_token]
 derpibooru_key = loaded[:derpibooru_key]
 ## TODO: check if empty
 
-def derpi_gettop(bot, message, derpibooru_key)
-    url = "https://derpibooru.org/lists/top_scoring.json" #?key=#{derpibooru_key}"
+def respond_not_found(bot, message)
+    bot.api.sendMessage(chat_id: message.chat.id, text: "I am sorry, #{message.from.first_name}, no images to reply with")
+end
+
+def fetch_and_post_image(bot, message, url, section)
     response = Net::HTTP.get_response URI.parse(url)
 
     ## TODO: add error checks
 
     data = JSON.parse(response.body)
-    entry = data["images"][0]
+    entry = data[section][0]
+    post_image(bot, message, entry)
+end
+
+def post_image(bot, message, entry)
+    if entry == nil
+        respond_not_found(bot, message)
+        return
+    end
+
+    ## TODO: add error checks
     image_url = URI.parse(entry["representations"]["tall"])
     image_url.scheme = "https" if image_url.scheme == nil
     ap entry
@@ -36,26 +51,30 @@ def derpi_gettop(bot, message, derpibooru_key)
         File.open(save_filename, "wb") do |file| file.puts f.read end
     end
 
-    if bot == nil
-        puts "#{save_filename} - #{source_url}"
-    else
-        apiresponse = bot.api.sendPhoto(chat_id: message.chat.id, photo: File.new(save_filename), caption: source_url)
-    end
+    apiresponse = bot.api.sendPhoto(chat_id: message.chat.id, photo: File.new(save_filename), caption: source_url)
 end
 
-#derpi_gettop(nil, nil, derpibooru_key)
+def derpi_gettop(bot, message, derpibooru_key)
+    url = "https://derpibooru.org/lists/top_scoring.json"
+    fetch_and_post_image(bot, message, url, "images")
+end
 
-def search_derpi(bot, message, derpibooru_key)
-    bot.api.sendMessage(chat_id: message.chat.id, text: "You wanted to search derpibooru, #{message.from.first_name}, but it's not implemented yet")
+def derpi_search(bot, message, derpibooru_key)
+    search_term = message.text.split(' ')[1..-1].join(' ')
+    if search_term == ""
+        derpi_gettop(bot, message, derpibooru_key)
+        return
+    end
+    search_term_encoded = url_encode(search_term)
+    url = "https://derpibooru.org/search.json?q=#{search_term_encoded}"
+    fetch_and_post_image(bot, message, url, "search")
 end
 
 
 Telegram::Bot::Client.run(telegram_token) do |bot|
     bot.listen do |message|
         case message.text
-        when '/derpi'
-            derpi_search(bot, message, derpibooru_key)
-        when '/pony'
+        when /^\/(pony|derpi)\b/
             derpi_search(bot, message, derpibooru_key)
         when '/toppony'
             derpi_gettop(bot, message, derpibooru_key)
