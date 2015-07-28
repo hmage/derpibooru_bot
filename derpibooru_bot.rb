@@ -68,6 +68,7 @@ def derpi_search(bot, message, derpibooru_key = nil)
     end
     search_term << ", explicit" if derpibooru_key != nil
     search_term << ", safe" if derpibooru_key == nil
+    search_term << ", -gore"
     search_term_encoded = url_encode(search_term)
     url = "https://derpibooru.org/search.json?q=#{search_term_encoded}"
     url << "&key=#{derpibooru_key}" if derpibooru_key != nil
