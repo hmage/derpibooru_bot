@@ -54,19 +54,23 @@ def post_image(bot, message, entry)
     apiresponse = bot.api.sendPhoto(chat_id: message.chat.id, photo: File.new(save_filename), caption: source_url)
 end
 
-def derpi_gettop(bot, message, derpibooru_key)
+def derpi_gettop(bot, message, derpibooru_key = nil)
     url = "https://derpibooru.org/lists/top_scoring.json"
+    url << "?key=#{derpibooru_key}" if derpibooru_key != nil
     fetch_and_post_image(bot, message, url, "images")
 end
 
-def derpi_search(bot, message, derpibooru_key)
+def derpi_search(bot, message, derpibooru_key = nil)
     search_term = message.text.split(' ')[1..-1].join(' ')
     if search_term == ""
         derpi_gettop(bot, message, derpibooru_key)
         return
     end
+    search_term << ", explicit" if derpibooru_key != nil
+    search_term << ", safe" if derpibooru_key == nil
     search_term_encoded = url_encode(search_term)
     url = "https://derpibooru.org/search.json?q=#{search_term_encoded}"
+    url << "&key=#{derpibooru_key}" if derpibooru_key != nil
     fetch_and_post_image(bot, message, url, "search")
 end
 
@@ -74,10 +78,12 @@ end
 Telegram::Bot::Client.run(telegram_token) do |bot|
     bot.listen do |message|
         case message.text
-        when /^\/(pony|derpi)\b/
+        when /^\/(clop)\b/
             derpi_search(bot, message, derpibooru_key)
+        when /^\/(pony|derpi)\b/
+            derpi_search(bot, message)
         when '/toppony'
-            derpi_gettop(bot, message, derpibooru_key)
+            derpi_gettop(bot, message)
         end
     end
 end
