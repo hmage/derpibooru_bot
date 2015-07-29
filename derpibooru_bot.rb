@@ -27,7 +27,6 @@ class DerpibooruBot
     end
 
     def post_image(message, entry)
-        respond_not_found(message) && return if entry == nil
         image_url = URI.parse(entry["representations"]["tall"])
         image_url.scheme = "https" if image_url.scheme == nil
         pp entry
@@ -41,10 +40,6 @@ class DerpibooruBot
         end
     end
 
-    def posttop(message, is_nsfw)
-        post_image(message, gettop(is_nsfw)[0])
-    end
-
     def gettop(is_nsfw = false)
         url = "https://derpibooru.org/lists/top_scoring.json"
         url << "?key=#{@derpibooru_key}" if is_nsfw
@@ -55,10 +50,11 @@ class DerpibooruBot
     def respond(message, is_nsfw = false)
         search_term = message.text.split(' ')[1..-1].join(' ')
         if search_term == ""
-            posttop(message, is_nsfw)
-            return
+            entries = gettop(is_nsfw)
+        else
+            entries = search(search_term, is_nsfw)
         end
-        entries = search(search_term, is_nsfw)
+        respond_not_found(message) && return if entries[0] == nil
         post_image(message, entries[0])
     end
 
