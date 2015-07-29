@@ -22,6 +22,10 @@ class DerpibooruBot
         @derpibooru_key = derpibooru_key
     end
 
+    def sendtext(message, text)
+        return @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id)
+    end
+
     def gettop(is_nsfw = false)
         url = "https://derpibooru.org/lists/top_scoring.json"
         url << "?key=#{@derpibooru_key}" if is_nsfw
@@ -56,10 +60,6 @@ class DerpibooruBot
         end
     end
 
-    def respond_not_found(message)
-        @bot.api.sendMessage(chat_id: message.chat.id, text: "I am sorry, #{message.from.first_name}, got no images to reply with.")
-    end
-
     def respond(message, is_nsfw = false)
         caption = nil
         search_term = message.text.split(' ')[1..-1].join(' ')
@@ -70,7 +70,9 @@ class DerpibooruBot
             entries = search(search_term, is_nsfw)
             caption = "Recent image for '#{search_term}'"
         end
-        respond_not_found(message) && return if entries[0] == nil
+
+        sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entries[0] == nil
+
         post_image(message, entries[0], caption)
     end
 end
@@ -83,5 +85,7 @@ bot.listen do |message|
         derpibooru_bot.respond(message, true)
     when /^\/(pony)\b/
         derpibooru_bot.respond(message, false)
+    when /^\/start\b/
+        derpibooru_bot.sendtext(message, "Hello!\r\n\r\nType /pony and I'll send you a top scoring picture\r\n\r\nTo search for a tag, add search term, like this:\r\n\r\n/pony Princess Celestia")
     end
 end
