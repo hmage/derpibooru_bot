@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 
-# gem install telegram-bot-ruby
+# gem install telegram-bot-ruby awesome_print
 require 'telegram/bot'
 require 'httparty' # telegram/bot is using it anyway, so let's use it too
 require 'yaml'
-require 'pp'
+require 'awesome_print'
 
 config_filename = "settings.yaml"
 file_contents = YAML.load_file(config_filename)
@@ -12,6 +12,10 @@ raise "Config file #{config_filename} is empty" if file_contents == false
 telegram_token = file_contents['telegram_token']
 derpibooru_key = file_contents['derpibooru_key']
 ## TODO: check if empty
+
+def log(message)
+    ap message
+end
 
 class DerpibooruBot
     include HTTParty
@@ -23,6 +27,7 @@ class DerpibooruBot
     end
 
     def sendtext(message, text)
+        ap text
         return @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id)
     end
 
@@ -45,7 +50,7 @@ class DerpibooruBot
     end
 
     def post_image(message, entry, caption = nil)
-        pp entry
+        ap entry
         image_url = URI.parse(entry["representations"]["tall"])
         image_url.scheme = "https" if image_url.scheme == nil
 
@@ -80,6 +85,7 @@ end
 bot = Telegram::Bot::Client.new(telegram_token)
 derpibooru_bot = DerpibooruBot.new(bot, derpibooru_key)
 bot.listen do |message|
+    log message
     case message.text
     when /^\/(clop)\b/
         derpibooru_bot.respond(message, true)
