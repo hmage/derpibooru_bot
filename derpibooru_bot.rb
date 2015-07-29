@@ -40,7 +40,7 @@ class DerpibooruBot
         return data["search"]
     end
 
-    def post_image(message, entry)
+    def post_image(message, entry, caption = nil)
         pp entry
         image_url = URI.parse(entry["representations"]["tall"])
         image_url.scheme = "https" if image_url.scheme == nil
@@ -50,7 +50,9 @@ class DerpibooruBot
         Tempfile.open(["#{entry['id']}", ".#{entry['original_format']}"]) do |f|
             f.write response.parsed_response
             f.rewind
-            apiresponse = @bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: "https://derpibooru.org/#{entry['id_number']}")
+            caption_text = "https://derpibooru.org/#{entry['id_number']}"
+            caption_text << "\n#{caption}" if caption != nil
+            @bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: caption_text, reply_to_message_id: message.message_id)
         end
     end
 
@@ -59,14 +61,17 @@ class DerpibooruBot
     end
 
     def respond(message, is_nsfw = false)
+        caption = nil
         search_term = message.text.split(' ')[1..-1].join(' ')
         if search_term == ""
             entries = gettop(is_nsfw)
+            caption = "Top scoring image in last 3 days"
         else
             entries = search(search_term, is_nsfw)
+            caption = "Recent image for '#{search_term}'"
         end
         respond_not_found(message) && return if entries[0] == nil
-        post_image(message, entries[0])
+        post_image(message, entries[0], caption)
     end
 end
 
