@@ -66,6 +66,7 @@ class DerpibooruBot
     end
 
     def respond(message, is_nsfw = false)
+        @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
         caption = nil
         search_term = message.text.split(' ')[1..-1].join(' ')
         if search_term == ""
