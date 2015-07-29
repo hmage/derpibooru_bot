@@ -22,40 +22,11 @@ class DerpibooruBot
         @derpibooru_key = derpibooru_key
     end
 
-    def respond_not_found(message)
-        @bot.api.sendMessage(chat_id: message.chat.id, text: "I am sorry, #{message.from.first_name}, got no images to reply with.")
-    end
-
-    def post_image(message, entry)
-        image_url = URI.parse(entry["representations"]["tall"])
-        image_url.scheme = "https" if image_url.scheme == nil
-        pp entry
-
-        response = HTTParty.get(image_url)
-
-        Tempfile.open(["#{entry['id']}", ".#{entry['original_format']}"]) do |f|
-            f.write response.parsed_response
-            f.rewind
-            apiresponse = @bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: "https://derpibooru.org/#{entry['id_number']}")
-        end
-    end
-
     def gettop(is_nsfw = false)
         url = "https://derpibooru.org/lists/top_scoring.json"
         url << "?key=#{@derpibooru_key}" if is_nsfw
         data = DerpibooruBot.get(url)
         return data["images"]
-    end
-
-    def respond(message, is_nsfw = false)
-        search_term = message.text.split(' ')[1..-1].join(' ')
-        if search_term == ""
-            entries = gettop(is_nsfw)
-        else
-            entries = search(search_term, is_nsfw)
-        end
-        respond_not_found(message) && return if entries[0] == nil
-        post_image(message, entries[0])
     end
 
     def search(search_term, is_nsfw = false)
@@ -67,6 +38,35 @@ class DerpibooruBot
         url << "&key=#{@derpibooru_key}" if @derpibooru_key != nil
         data = DerpibooruBot.get(url)
         return data["search"]
+    end
+
+    def post_image(message, entry)
+        pp entry
+        image_url = URI.parse(entry["representations"]["tall"])
+        image_url.scheme = "https" if image_url.scheme == nil
+
+        response = HTTParty.get(image_url)
+
+        Tempfile.open(["#{entry['id']}", ".#{entry['original_format']}"]) do |f|
+            f.write response.parsed_response
+            f.rewind
+            apiresponse = @bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: "https://derpibooru.org/#{entry['id_number']}")
+        end
+    end
+
+    def respond_not_found(message)
+        @bot.api.sendMessage(chat_id: message.chat.id, text: "I am sorry, #{message.from.first_name}, got no images to reply with.")
+    end
+
+    def respond(message, is_nsfw = false)
+        search_term = message.text.split(' ')[1..-1].join(' ')
+        if search_term == ""
+            entries = gettop(is_nsfw)
+        else
+            entries = search(search_term, is_nsfw)
+        end
+        respond_not_found(message) && return if entries[0] == nil
+        post_image(message, entries[0])
     end
 end
 
