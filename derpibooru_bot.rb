@@ -65,7 +65,7 @@ class DerpibooruBot
         end
     end
 
-    def respond(message, is_nsfw = false)
+    def pony(message, is_nsfw = false)
         @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
         caption = nil
         search_term = message.text.split(' ')[1..-1].join(' ')
@@ -88,10 +88,10 @@ derpibooru_bot = DerpibooruBot.new(bot, derpibooru_key)
 bot.listen do |message|
     log message
     case message.text
-    when /^\/(clop)\b/
-        derpibooru_bot.respond(message, true)
-    when /^\/(pony)\b/
-        derpibooru_bot.respond(message, false)
+    when /^\/clop\b/
+        derpibooru_bot.pony(message, true)
+    when /^\/pony\b/
+        derpibooru_bot.pony(message)
     when /^\/start\b/
         derpibooru_bot.sendtext(message, "Hello!\r\n\r\nType /pony and I'll send you a top scoring picture\r\n\r\nTo search for a tag, add search term, like this:\r\n\r\n/pony Princess Celestia")
     end
