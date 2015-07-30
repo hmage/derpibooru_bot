@@ -4,7 +4,7 @@
 require 'telegram/bot'
 require 'httparty' # telegram/bot is using it anyway, so let's use it too
 require 'yaml'
-require 'awesome_print'
+require 'logger'
 
 config_filename = "settings.yaml"
 file_contents = YAML.load_file(config_filename)
@@ -13,8 +13,34 @@ telegram_token = file_contents['telegram_token']
 derpibooru_key = file_contents['derpibooru_key']
 ## TODO: check if empty
 
-def log(message)
-    ap message
+$logger = Logger.new("derpibooru_bot.log", 'weekly')
+$logger.formatter = proc do |severity, datetime, progname, msg|
+    "[#{datetime} #{severity}] #{msg}\n"
+end
+
+def getname(message)
+    return "@#{message.from.username}" if message.from.username != nil
+    return message.from.first_name
+end
+
+def logfrom(message)
+    name = getname(message)
+    string = "<#{name}> #{message.text.inspect}"
+    puts string
+    $logger.info string
+end
+
+def logto(message, text = nil)
+    name = getname(message)
+    string = "<@DerpibooruBot> -> <#{name}> #{text.inspect}"
+    puts string
+    $logger.info string
+end
+
+def logerror(e)
+    puts e.inspect
+    $logger.error e.inspect
+    ## TODO: send SMS notification
 end
 
 class DerpibooruBot
@@ -27,8 +53,25 @@ class DerpibooruBot
     end
 
     def sendtext(message, text)
-        ap text
-        return @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id)
+        logto(message, text)
+        apiresponse = nil
+        begin
+            apiresponse = @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id)
+        rescue => e
+            logerror e
+        end
+        return apiresponse
+    end
+
+    def sendphoto(message, f, caption_text)
+        logto(message, caption_text)
+        apiresponse = nil
+        begin
+            apiresponse = @bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: caption_text, reply_to_message_id: message.message_id)
+        rescue => e
+            logerror e
+        end
+        return apiresponse
     end
 
     def gettop(is_nsfw = false)
@@ -50,7 +93,6 @@ class DerpibooruBot
     end
 
     def post_image(message, entry, caption = nil)
-        ap entry
         image_url = URI.parse(entry["representations"]["tall"])
         image_url.scheme = "https" if image_url.scheme == nil
 
@@ -61,7 +103,7 @@ class DerpibooruBot
             f.rewind
             caption_text = "https://derpibooru.org/#{entry['id_number']}"
             caption_text << "\n#{caption}" if caption != nil
-            @bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: caption_text, reply_to_message_id: message.message_id)
+            sendphoto(message, f, caption_text)
         end
     end
 
@@ -86,7 +128,7 @@ end
 bot = Telegram::Bot::Client.new(telegram_token)
 derpibooru_bot = DerpibooruBot.new(bot, derpibooru_key)
 bot.listen do |message|
-    log message
+    logfrom message
     case message.text
     when /^\/clop\b/
         derpibooru_bot.pony(message, true)
