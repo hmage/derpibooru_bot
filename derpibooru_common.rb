@@ -16,7 +16,7 @@ class Derpibooru
 
         ## TODO: handle errors
         data = Derpibooru.get(url)
-        return filter_entries(data["images"])
+        return filter_entries(data["images"], is_nsfw)
     end
 
     def search(search_term, is_nsfw = false)
@@ -30,7 +30,7 @@ class Derpibooru
 
         ## TODO: handle errors
         data = Derpibooru.get(url)
-        return filter_entries(data["search"])
+        return filter_entries(data["search"], is_nsfw)
     end
 
     def download_image(entry)
@@ -43,6 +43,7 @@ class Derpibooru
 
     def filter_entries(entries, is_nsfw)
         entries.reject! {|v| v['mime_type'] == 'image/gif'}
+        entries.reject! {|v| v['tag_ids'].include? 'suggestive'} if is_nsfw
         return entries
     end
 
@@ -67,4 +68,5 @@ if __FILE__ == $0
     ap derpibooru.select_random derpibooru.gettop
     ap derpibooru.select_top derpibooru.search('Celestia')
     ap derpibooru.select_top derpibooru.search('animated')
+    ap derpibooru.select_top derpibooru.search('suggestive')
 end
