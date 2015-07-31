@@ -26,6 +26,9 @@ class Derpibooru
         search_term << ", -animated"
         search_term << ", -humanized"
         search_term << ", -meta"
+        search_term << ", -image macro"
+        search_term << ", -barely pony related"
+        search_term << ", -spoiler:*"
         search_term_encoded = CGI.escape(search_term)
         url = "https://derpibooru.org/search.json?q=#{search_term_encoded}"
         url << "&key=#{@derpibooru_key}" if @derpibooru_key != nil
