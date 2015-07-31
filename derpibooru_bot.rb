@@ -112,16 +112,18 @@ class DerpibooruBot
         caption = nil
         search_term = message.text.split(' ')[1..-1].join(' ')
         if search_term == ""
+            caption = "Random top scoring image in last 3 days"
             entries = gettop(is_nsfw)
-            caption = "Top scoring image in last 3 days"
+            entry = entries.sample
         else
+            caption = "Best recent image for '#{search_term}'"
             entries = search(search_term, is_nsfw)
-            caption = "Recent image for '#{search_term}'"
+            entry = entries.max {|a,b| a["score"] <=> b["score"]}
         end
 
         sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entries[0] == nil
 
-        post_image(message, entries[0], caption)
+        post_image(message, entry, caption)
     end
 end
 
@@ -137,7 +139,7 @@ while true
             when /^\/pony\b/
                 derpibooru_bot.pony(message)
             when /^\/(start|help)\b/
-                derpibooru_bot.sendtext(message, "Hello! I'm a bot by @hmage that sends your daily fix of ponies.\r\n\r\nType /pony and I'll send you a top scoring picture.\r\n\r\nTo search for a tag, add search term, like this:\r\n\r\n/pony Princess Celestia")
+                derpibooru_bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
             end
         end
     rescue Net::ReadTimeout => e
