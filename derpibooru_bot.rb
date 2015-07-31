@@ -136,8 +136,8 @@ while true
                 derpibooru_bot.pony(message, true)
             when /^\/pony\b/
                 derpibooru_bot.pony(message)
-            when /^\/start\b/
-                derpibooru_bot.sendtext(message, "Hello!\r\n\r\nType /pony and I'll send you a top scoring picture\r\n\r\nTo search for a tag, add search term, like this:\r\n\r\n/pony Princess Celestia")
+            when /^\/(start|help)\b/
+                derpibooru_bot.sendtext(message, "Hello! I'm a bot by @hmage that sends your daily fix of ponies.\r\n\r\nType /pony and I'll send you a top scoring picture.\r\n\r\nTo search for a tag, add search term, like this:\r\n\r\n/pony Princess Celestia")
             end
         end
     rescue Net::ReadTimeout => e
