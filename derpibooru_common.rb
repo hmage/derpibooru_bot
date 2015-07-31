@@ -24,6 +24,7 @@ class Derpibooru
         search_term << ", safe" if !is_nsfw
         search_term << ", -gore"
         search_term << ", -animated"
+        search_term << ", -humanized"
         search_term_encoded = CGI.escape(search_term)
         url = "https://derpibooru.org/search.json?q=#{search_term_encoded}"
         url << "&key=#{@derpibooru_key}" if @derpibooru_key != nil
