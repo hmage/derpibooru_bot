@@ -11,12 +11,16 @@ class Derpibooru
     end
 
     def gettop(is_nsfw = false)
-        url = "https://derpibooru.org/lists/top_scoring.json"
-        url << "?key=#{@derpibooru_key}" if is_nsfw
+        entries = Array.new
+        4.times do |n|
+            url = "https://derpibooru.org/lists/top_scoring.json?page=#{n}"
+            url << "&key=#{@derpibooru_key}" if is_nsfw
 
-        ## TODO: handle errors
-        data = Derpibooru.get(url)
-        return filter_entries(data["images"], is_nsfw)
+            ## TODO: handle errors
+            data = Derpibooru.get(url)
+            entries.concat(data["images"])
+        end
+        return filter_entries(entries, is_nsfw)
     end
 
     def search(search_term, is_nsfw = false)
@@ -76,7 +80,10 @@ if __FILE__ == $0
     derpibooru_key = file_contents['derpibooru_key']
     derpibooru = Derpibooru.new(derpibooru_key)
     ap derpibooru.select_random derpibooru.gettop
-    ap derpibooru.select_top derpibooru.search('Celestia')
-    ap derpibooru.select_top derpibooru.search('animated')
-    ap derpibooru.select_top derpibooru.search('suggestive')
+    ap derpibooru.gettop.count
+    ap derpibooru.gettop(true).count
+    ap derpibooru.search('Celestia').count
+    ap derpibooru.search('Celestia', true).count
+    ap derpibooru.search('animated').count
+    ap derpibooru.search('suggestive').count
 end
