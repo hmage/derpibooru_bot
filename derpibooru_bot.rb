@@ -21,6 +21,7 @@ $logger.formatter = proc do |severity, datetime, progname, msg|
 end
 
 def getname(message)
+    return nil if message == nil
     return "@#{message.from.username}" if message.from.username != nil
     return message.from.first_name
 end
@@ -73,21 +74,19 @@ class DerpibooruBot
         return apiresponse
     end
 
-    def post_image(message, entry, caption = nil)
+    def post_image(message, entry, caption)
         response = @derpibooru.download_image(entry)
 
         Tempfile.open(["#{entry['id']}", ".#{entry['original_format']}"]) do |f|
             f.write response.parsed_response
             f.rewind
-            caption_text = "https://derpibooru.org/#{entry['id_number']}"
-            caption_text << "\n#{caption}" if caption != nil
+            caption_text = "https://derpibooru.org/#{entry['id_number']}\n#{caption}"
             sendphoto(message, f, caption_text)
         end
     end
 
     def pony(message, is_nsfw = false)
         @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
-        caption = nil
         search_term = message.text.split(' ')[1..-1].join(' ')
         if search_term == ""
             caption = "Random top scoring image in last 3 days"
@@ -99,8 +98,7 @@ class DerpibooruBot
             entry = @derpibooru.select_top(entries)
         end
 
-        sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entries[0] == nil
-
+        sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entry == nil
         post_image(message, entry, caption)
     end
 end
