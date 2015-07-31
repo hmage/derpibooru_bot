@@ -72,6 +72,9 @@ class DerpibooruBot
             apiresponse = @bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: caption_text, reply_to_message_id: message.message_id)
         rescue => e
             logerror(e, message)
+            errortext = "Apologies, #{e.inspect}"
+            logto(message, errortext)
+            @bot.api.sendMessage(chat_id: message.chat.id, text: errortext, reply_to_message_id: message.message_id)
         end
         return apiresponse
     end
