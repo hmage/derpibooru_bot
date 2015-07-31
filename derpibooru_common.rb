@@ -16,20 +16,21 @@ class Derpibooru
 
         ## TODO: handle errors
         data = Derpibooru.get(url)
-        return data["images"]
+        return filter_entries(data["images"])
     end
 
     def search(search_term, is_nsfw = false)
         search_term << ", explicit" if is_nsfw
         search_term << ", safe" if !is_nsfw
         search_term << ", -gore"
+        search_term << ", -animated"
         search_term_encoded = CGI.escape(search_term)
         url = "https://derpibooru.org/search.json?q=#{search_term_encoded}"
         url << "&key=#{@derpibooru_key}" if @derpibooru_key != nil
 
         ## TODO: handle errors
         data = Derpibooru.get(url)
-        return data["search"]
+        return filter_entries(data["search"])
     end
 
     def download_image(entry)
@@ -38,6 +39,11 @@ class Derpibooru
 
         ## TODO: handle errors
         return HTTParty.get(image_url)
+    end
+
+    def filter_entries(entries, is_nsfw)
+        entries.reject! {|v| v['mime_type'] == 'image/gif'}
+        return entries
     end
 
     def select_top(entries)
@@ -60,4 +66,5 @@ if __FILE__ == $0
     derpibooru = Derpibooru.new(derpibooru_key)
     ap derpibooru.select_random derpibooru.gettop
     ap derpibooru.select_top derpibooru.search('Celestia')
+    ap derpibooru.select_top derpibooru.search('animated')
 end
