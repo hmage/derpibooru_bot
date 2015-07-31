@@ -84,8 +84,8 @@ if __FILE__ == $0
     ap derpibooru.select_random derpibooru.gettop
     ap derpibooru.gettop.count
     ap derpibooru.gettop(true).count
-    ap derpibooru.search('Celestia').count
-    ap derpibooru.search('Celestia', true).count
-    ap derpibooru.search('animated').count
-    ap derpibooru.search('suggestive').count
+    ap derpibooru.search('Celestia').count        # should be 50
+    ap derpibooru.search('Celestia', true).count  # should be 50
+    ap derpibooru.search('animated').count        # should be 0
+    ap derpibooru.search('suggestive').count      # should be 0
 end
