@@ -92,14 +92,19 @@ class DerpibooruBot
 
     def pony(message, is_nsfw = false)
         @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
-        search_term = message.text.split(' ')[1..-1].join(' ')
-        if search_term == ""
+
+        search_terms = message.text.split(' ')[1..-1].join(' ')
+
+        if search_terms.empty?
             caption = "Random top scoring image in last 3 days"
             entries = @derpibooru.gettop(is_nsfw)
             entry = @derpibooru.select_random(entries)
+        elsif search_terms =~ /\bexplicit\b/
+            sendtext(message, "You're naughty. If you want explicit, use /clop")
+            return
         else
-            caption = "Best recent image for '#{search_term}'"
-            entries = @derpibooru.search(search_term, is_nsfw)
+            caption = "Best recent image for '#{search_terms}'"
+            entries = @derpibooru.search(search_terms, is_nsfw)
             entry = @derpibooru.select_top(entries)
         end
 
