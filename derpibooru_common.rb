@@ -53,6 +53,7 @@ class Derpibooru
 
     def filter_entries(entries, is_nsfw)
         entries.reject! {|v| v['mime_type'] == 'image/gif'}
+        entries.reject! {|v| v['tag_ids'].find { |t| t =~ /^spoiler:/ }}
         entries.reject! {|v| v['tag_ids'].include? 'equestria girls'}
         entries.reject! {|v| v['tag_ids'].include? 'suggestive'} if !is_nsfw
         entries.reject! {|v| v['tag_ids'].include? 'safe'} if is_nsfw
