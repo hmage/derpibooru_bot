@@ -19,7 +19,7 @@ class Derpibooru
 
             ## TODO: handle errors
             data = Derpibooru.get(url)
-            entries.concat(data["images"])
+            entries.concat(data['images'])
         end
         return filter_entries(entries, is_nsfw)
     end
@@ -34,11 +34,11 @@ class Derpibooru
 
         ## TODO: handle errors
         data = Derpibooru.get(url)
-        return filter_entries(data["search"], is_nsfw)
+        return filter_entries(data['search'], is_nsfw)
     end
 
     def download_image(entry)
-        image_url = URI.parse(entry["representations"]["tall"])
+        image_url = URI.parse(entry['representations']['tall'])
         image_url.scheme = "https" if image_url.scheme == nil
 
         ## TODO: handle errors
@@ -55,11 +55,11 @@ class Derpibooru
     end
 
     def select_worst(entries)
-        return entries.min {|a,b| a["score"] <=> b["score"]}
+        return entries.min {|a,b| a['score'] <=> b['score']}
     end
 
     def select_top(entries)
-        return entries.max {|a,b| a["score"] <=> b["score"]}
+        return entries.max {|a,b| a['score'] <=> b['score']}
     end
 
     def select_random(entries)
@@ -77,8 +77,8 @@ if __FILE__ == $0
     ap derpibooru.select_random derpibooru.gettop
     ap derpibooru.gettop.count
     ap derpibooru.gettop(true).count
-    ap derpibooru.search('Celestia').count        # should be 50
-    ap derpibooru.search('Celestia', true).count  # should be 50
-    ap derpibooru.search('animated').count        # should be 0
-    ap derpibooru.search('suggestive').count      # should be 0
+    ap derpibooru.search('Celestia').count        # must be 50
+    ap derpibooru.search('Celestia', true).count  # must be 50
+    ap derpibooru.search('animated').count        # must be 0
+    ap derpibooru.search('suggestive').count      # must be 0
 end

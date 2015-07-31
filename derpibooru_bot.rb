@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# gem install telegram-bot-ruby awesome_print
+# gem install telegram-bot-ruby
 require 'telegram/bot'
 require 'yaml'
 require 'logger'
