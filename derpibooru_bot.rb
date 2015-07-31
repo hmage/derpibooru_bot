@@ -9,11 +9,8 @@ $: << File.dirname(__FILE__)
 require 'derpibooru_common'
 
 config_filename = "settings.yaml"
-file_contents = YAML.load_file(config_filename)
-raise "Config file #{config_filename} is empty" if file_contents == false
-telegram_token = file_contents['telegram_token']
-derpibooru_key = file_contents['derpibooru_key']
-## TODO: check if empty
+settings = YAML.load_file("settings.yaml")
+raise "Config file #{config_filename} is empty, please create it first" if settings == false
 
 $logger = Logger.new("derpibooru_bot.log", 'weekly')
 $logger.formatter = proc do |severity, datetime, progname, msg|
@@ -49,9 +46,9 @@ def logerror(e, message = nil)
 end
 
 class DerpibooruBot
-    def initialize(bot, derpibooru_key = nil)
+    def initialize(bot, settings)
         @bot = bot
-        @derpibooru = Derpibooru.new(derpibooru_key)
+        @derpibooru = Derpibooru.new(settings)
     end
 
     def sendtext(message, text)
@@ -133,8 +130,8 @@ class DerpibooruBot
     end
 end
 
-bot = Telegram::Bot::Client.new(telegram_token)
-derpibooru_bot = DerpibooruBot.new(bot, derpibooru_key)
+bot = Telegram::Bot::Client.new(settings['telegram_token'])
+derpibooru_bot = DerpibooruBot.new(bot, settings)
 while true
     begin
         bot.listen do |message|

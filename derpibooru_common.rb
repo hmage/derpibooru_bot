@@ -6,8 +6,9 @@ class Derpibooru
     include HTTParty
     format :json
 
-    def initialize(derpibooru_key = nil)
-        @derpibooru_key = derpibooru_key
+    def initialize(settings)
+        @derpibooru_key = settings['derpibooru_key']
+        @blocked_tags = settings['blocked_tags']
     end
 
     def gettop(is_nsfw = false)
@@ -24,16 +25,9 @@ class Derpibooru
     end
 
     def search(search_term, is_nsfw = false)
-        search_term << ", explicit" if is_nsfw
-        search_term << ", safe" if !is_nsfw
-        search_term << ", -gore"
-        search_term << ", -animated"
-        search_term << ", -humanized"
-        search_term << ", -equestria girls"
-        search_term << ", -meta"
-        search_term << ", -image macro"
-        search_term << ", -barely pony related"
-        search_term << ", -spoiler:*"
+        search_term << ', explicit' if is_nsfw
+        search_term << ', safe' if !is_nsfw
+        @blocked_tags.each do |tag| search_term << ", -#{tag}" end
         search_term_encoded = CGI.escape(search_term)
         url = "https://derpibooru.org/search.json?q=#{search_term_encoded}"
         url << "&key=#{@derpibooru_key}"
@@ -54,7 +48,7 @@ class Derpibooru
     def filter_entries(entries, is_nsfw)
         entries.reject! {|v| v['mime_type'] == 'image/gif'}
         entries.reject! {|v| v['tag_ids'].find { |t| t =~ /^spoiler:/ }}
-        entries.reject! {|v| v['tag_ids'].include? 'equestria girls'}
+        @blocked_tags.each {|tag| entries.reject! { |v| v['tag_ids'].include? tag }}
         entries.reject! {|v| v['tag_ids'].include? 'suggestive'} if !is_nsfw
         entries.reject! {|v| v['tag_ids'].include? 'safe'} if is_nsfw
         return entries
@@ -77,11 +71,9 @@ end
 if __FILE__ == $0
     # for developing
     require 'awesome_print'
-    require 'pp'
-    file_contents = YAML.load_file("settings.yaml")
-    raise "Config file #{config_filename} is empty" if file_contents == false
-    derpibooru_key = file_contents['derpibooru_key']
-    derpibooru = Derpibooru.new(derpibooru_key)
+    settings = YAML.load_file('settings.yaml')
+    raise "Config file #{config_filename} is empty" if settings == false
+    derpibooru = Derpibooru.new(settings)
     ap derpibooru.select_random derpibooru.gettop
     ap derpibooru.gettop.count
     ap derpibooru.gettop(true).count
