@@ -50,6 +50,10 @@ class Derpibooru
         return entries
     end
 
+    def select_worst(entries)
+        return entries.min {|a,b| a["score"] <=> b["score"]}
+    end
+
     def select_top(entries)
         return entries.max {|a,b| a["score"] <=> b["score"]}
     end

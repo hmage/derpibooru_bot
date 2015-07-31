@@ -90,10 +90,30 @@ class DerpibooruBot
         end
     end
 
+    def parse_search_terms(message)
+        return message.text.split(' ')[1..-1].join(' ')
+    end
+
+    def ynop(message, is_nsfw = false)
+        @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
+        search_terms = parse_search_terms(message)
+        if search_terms.empty?
+            caption = "Worst from top scoring image in last 3 days"
+            entries = @derpibooru.gettop(is_nsfw)
+            entry = @derpibooru.select_worst(entries)
+        else
+            caption = "Worst recent image for '#{search_terms}'"
+            entries = @derpibooru.search(search_terms, is_nsfw)
+            entry = @derpibooru.select_worst(entries)
+        end
+        sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entry == nil
+        post_image(message, entry, caption)
+    end
+
     def pony(message, is_nsfw = false)
         @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
 
-        search_terms = message.text.split(' ')[1..-1].join(' ')
+        search_terms = parse_search_terms(message)
 
         if search_terms.empty?
             caption = "Random top scoring image in last 3 days"
@@ -124,6 +144,8 @@ while true
                 derpibooru_bot.pony(message, true)
             when /^\/pony\b/
                 derpibooru_bot.pony(message)
+            when /^\/ynop\b/
+                derpibooru_bot.ynop(message)
             when /^\/(start|help)\b/
                 derpibooru_bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
             end
