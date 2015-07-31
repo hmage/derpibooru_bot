@@ -40,9 +40,11 @@ def logto(message, text = nil)
     $logger.info string
 end
 
-def logerror(e)
-    puts e.inspect
-    $logger.error e.inspect
+def logerror(e, message = nil)
+    name = getname(message)
+    string = "<@DerpibooruBot> -> <#{name}> #{e.inspect}"
+    puts string
+    $logger.error string
     ## TODO: send SMS notification
 end
 
@@ -58,7 +60,7 @@ class DerpibooruBot
         begin
             apiresponse = @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id)
         rescue => e
-            logerror e
+            logerror(e, message)
         end
         return apiresponse
     end
@@ -69,7 +71,7 @@ class DerpibooruBot
         begin
             apiresponse = @bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: caption_text, reply_to_message_id: message.message_id)
         rescue => e
-            logerror e
+            logerror(e, message)
         end
         return apiresponse
     end
