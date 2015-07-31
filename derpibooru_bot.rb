@@ -2,9 +2,11 @@
 
 # gem install telegram-bot-ruby awesome_print
 require 'telegram/bot'
-require 'httparty' # telegram/bot is using it anyway, so let's use it too
 require 'yaml'
 require 'logger'
+
+$: << File.dirname(__FILE__)
+require 'derpibooru_common'
 
 config_filename = "settings.yaml"
 file_contents = YAML.load_file(config_filename)
@@ -44,12 +46,9 @@ def logerror(e)
 end
 
 class DerpibooruBot
-    include HTTParty
-    format :json
-
     def initialize(bot, derpibooru_key = nil)
         @bot = bot
-        @derpibooru_key = derpibooru_key
+        @derpibooru = Derpibooru.new(derpibooru_key)
     end
 
     def sendtext(message, text)
@@ -74,29 +73,8 @@ class DerpibooruBot
         return apiresponse
     end
 
-    def gettop(is_nsfw = false)
-        url = "https://derpibooru.org/lists/top_scoring.json"
-        url << "?key=#{@derpibooru_key}" if is_nsfw
-        data = DerpibooruBot.get(url)
-        return data["images"]
-    end
-
-    def search(search_term, is_nsfw = false)
-        search_term << ", explicit" if is_nsfw
-        search_term << ", safe" if !is_nsfw
-        search_term << ", -gore"
-        search_term_encoded = CGI.escape(search_term)
-        url = "https://derpibooru.org/search.json?q=#{search_term_encoded}"
-        url << "&key=#{@derpibooru_key}" if @derpibooru_key != nil
-        data = DerpibooruBot.get(url)
-        return data["search"]
-    end
-
     def post_image(message, entry, caption = nil)
-        image_url = URI.parse(entry["representations"]["tall"])
-        image_url.scheme = "https" if image_url.scheme == nil
-
-        response = HTTParty.get(image_url)
+        response = @derpibooru.download_image(entry)
 
         Tempfile.open(["#{entry['id']}", ".#{entry['original_format']}"]) do |f|
             f.write response.parsed_response
@@ -113,12 +91,12 @@ class DerpibooruBot
         search_term = message.text.split(' ')[1..-1].join(' ')
         if search_term == ""
             caption = "Random top scoring image in last 3 days"
-            entries = gettop(is_nsfw)
-            entry = entries.sample
+            entries = @derpibooru.gettop(is_nsfw)
+            entry = @derpibooru.select_random(entries)
         else
             caption = "Best recent image for '#{search_term}'"
-            entries = search(search_term, is_nsfw)
-            entry = entries.max {|a,b| a["score"] <=> b["score"]}
+            entries = @derpibooru.search(search_term, is_nsfw)
+            entry = @derpibooru.select_top(entries)
         end
 
         sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entries[0] == nil
