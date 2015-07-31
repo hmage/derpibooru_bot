@@ -29,6 +29,7 @@ class Derpibooru
         search_term << ", -gore"
         search_term << ", -animated"
         search_term << ", -humanized"
+        search_term << ", -equestria girls"
         search_term << ", -meta"
         search_term << ", -image macro"
         search_term << ", -barely pony related"
@@ -52,6 +53,7 @@ class Derpibooru
 
     def filter_entries(entries, is_nsfw)
         entries.reject! {|v| v['mime_type'] == 'image/gif'}
+        entries.reject! {|v| v['tag_ids'].include? 'equestria girls'}
         entries.reject! {|v| v['tag_ids'].include? 'suggestive'} if !is_nsfw
         entries.reject! {|v| v['tag_ids'].include? 'safe'} if is_nsfw
         return entries
