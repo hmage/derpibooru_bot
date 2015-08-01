@@ -55,7 +55,7 @@ class DerpibooruBot
         logto(message, text)
         apiresponse = nil
         begin
-            apiresponse = @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id)
+            apiresponse = @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         rescue => e
             logerror(e, message)
         end
@@ -144,7 +144,7 @@ while true
             when /^\/ynope?\b/
                 derpibooru_bot.ynop(message)
             when /^\/(start|help)\b/
-                derpibooru_bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
+                derpibooru_bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
             end
         end
     rescue Net::ReadTimeout => e
