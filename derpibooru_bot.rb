@@ -32,7 +32,7 @@ end
 
 def logto(message, text = nil)
     name = getname(message)
-    string = "<@DerpibooruBot> -> <#{name}> #{text.inspect}"
+    string = "-> <#{name}> #{text.inspect}"
     puts string
     $logger.info string
 end
