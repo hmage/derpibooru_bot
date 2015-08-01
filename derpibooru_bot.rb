@@ -93,16 +93,27 @@ class DerpibooruBot
 
     def ynop(message, is_nsfw = false)
         @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
+
         search_terms = parse_search_terms(message)
-        if search_terms.empty?
-            caption = "Worst from top scoring image in last 3 days"
-            entries = @derpibooru.gettop(is_nsfw)
-            entry = @derpibooru.select_worst(entries)
-        else
-            caption = "Worst recent image for '#{search_terms}'"
-            entries = @derpibooru.search(search_terms, is_nsfw)
-            entry = @derpibooru.select_worst(entries)
+
+        begin
+            if search_terms.empty?
+                caption = "Worst from top scoring image in last 3 days"
+                entries = @derpibooru.gettop(is_nsfw)
+                entry = @derpibooru.select_worst(entries)
+            else
+                caption = "Worst recent image for '#{search_terms}'"
+                entries = @derpibooru.search(search_terms, is_nsfw)
+                entry = @derpibooru.select_worst(entries)
+            end
+        rescue JSON::ParserError => e
+            logerror(e, message)
+            text = "Apologies, but looks like derpibooru.org is down. Please try again in a bit."
+            logto(message, text)
+            @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
+            return
         end
+
         sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entry == nil
         post_image(message, entry, caption)
     end
@@ -112,17 +123,25 @@ class DerpibooruBot
 
         search_terms = parse_search_terms(message)
 
-        if search_terms.empty?
-            caption = "Random top scoring image in last 3 days"
-            entries = @derpibooru.gettop(is_nsfw)
-            entry = @derpibooru.select_random(entries)
-        elsif search_terms =~ /\bexplicit\b/
-            sendtext(message, "You're naughty. If you want explicit, use /clop")
+        begin
+            if search_terms.empty?
+                caption = "Random top scoring image in last 3 days"
+                entries = @derpibooru.gettop(is_nsfw)
+                entry = @derpibooru.select_random(entries)
+            elsif search_terms =~ /\bexplicit\b/
+                sendtext(message, "You're naughty. If you want explicit, use /clop")
+                return
+            else
+                caption = "Best recent image for '#{search_terms}'"
+                entries = @derpibooru.search(search_terms, is_nsfw)
+                entry = @derpibooru.select_top(entries)
+            end
+        rescue JSON::ParserError => e
+            logerror(e, message)
+            text = "Apologies, but looks like derpibooru.org is down. Please try again in a bit."
+            logto(message, text)
+            @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
             return
-        else
-            caption = "Best recent image for '#{search_terms}'"
-            entries = @derpibooru.search(search_terms, is_nsfw)
-            entry = @derpibooru.select_top(entries)
         end
 
         sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entry == nil
