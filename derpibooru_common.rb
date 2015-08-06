@@ -43,14 +43,17 @@ class Derpibooru
     end
 
     def select_worst(entries)
+        return nil if entries == nil
         return entries.min {|a,b| a['score'] <=> b['score']}
     end
 
     def select_top(entries)
+        return nil if entries == nil
         return entries.max {|a,b| a['score'] <=> b['score']}
     end
 
     def select_random(entries)
+        return nil if entries == nil
         return entries.sample
     end
 end
