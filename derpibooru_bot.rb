@@ -102,7 +102,7 @@ class DerpibooruBot
                 entries = @derpibooru.gettop(is_nsfw)
                 entry = @derpibooru.select_worst(entries)
             else
-                caption = "Worst recent image for '#{search_terms}'"
+                caption = "Worst recent image for your search"
                 entries = @derpibooru.search(search_terms, is_nsfw)
                 entry = @derpibooru.select_worst(entries)
             end
@@ -132,7 +132,7 @@ class DerpibooruBot
                 sendtext(message, "You're naughty. Use /clop (you must be older than 18)")
                 return
             else
-                caption = "Best recent image for '#{search_terms}'"
+                caption = "Best recent image for your search"
                 entries = @derpibooru.search(search_terms, is_nsfw)
                 entry = @derpibooru.select_top(entries)
             end
