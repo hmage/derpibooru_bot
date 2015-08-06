@@ -128,7 +128,7 @@ class DerpibooruBot
                 caption = "Random top scoring image in last 3 days"
                 entries = @derpibooru.gettop(is_nsfw)
                 entry = @derpibooru.select_random(entries)
-            elsif (search_terms =~ /\b(explicit|clop)\b/ && !is_nsfw)
+            elsif (search_terms =~ /\b(explicit|clop|nsfw|sex)\b/ && !is_nsfw)
                 sendtext(message, "You're naughty. Use /clop (you must be older than 18)")
                 return
             else
