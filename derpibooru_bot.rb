@@ -151,16 +151,21 @@ end
 
 bot = Telegram::Bot::Client.new(settings['telegram_token'])
 derpibooru_bot = DerpibooruBot.new(bot, settings)
-bot.listen do |message|
-    logfrom message
-    case message.text
-    when /^\/clop\b/
-        derpibooru_bot.pony(message, true)
-    when /^\/pony\b/
-        derpibooru_bot.pony(message)
-    when /^\/ynope?\b/
-        derpibooru_bot.ynop(message)
-    when /^\/(start|help)\b/
-        derpibooru_bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
+begin
+    bot.listen do |message|
+        logfrom message
+        case message.text
+        when /^\/clop\b/
+            derpibooru_bot.pony(message, true)
+        when /^\/pony\b/
+            derpibooru_bot.pony(message)
+        when /^\/ynope?\b/
+            derpibooru_bot.ynop(message)
+        when /^\/(start|help)\b/
+            derpibooru_bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
+        end
     end
+rescue => e
+    logerror e
+    retry
 end
