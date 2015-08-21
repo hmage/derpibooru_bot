@@ -39,7 +39,7 @@ end
 
 def logerror(e, message = nil)
     name = getname(message)
-    string = "<@DerpibooruBot> -> <#{name}> #{e.inspect}"
+    string = "!!! <#{name}> #{e.inspect}"
     puts string
     $logger.error string
     ## TODO: send SMS notification
