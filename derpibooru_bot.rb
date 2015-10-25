@@ -167,5 +167,6 @@ begin
     end
 rescue => e
     logerror e
+    sleep 1
     retry
 end
