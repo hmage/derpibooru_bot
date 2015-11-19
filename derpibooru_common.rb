@@ -72,12 +72,8 @@ class E621
     end
 
     def search(search_term, is_nsfw = false)
-        search_term << " -type:webm"
-        search_term << " -type:swf"
-        search_term << " -3d"
         search_term_encoded = CGI.escape(search_term)
         url = "/post/index.json?tags=#{search_term_encoded}"
-        p url
 
         ## TODO: handle errors
         data = self.class.get(url)
@@ -85,7 +81,16 @@ class E621
             success = data["success"]
             raise data["reason"] if success == false
         end
-        return data
+        return filter_entries(data)
+    end
+
+    def filter_entries(entries)
+        blocked_tags = ["3d"]
+        entries.reject! {|v| v['file_ext'] == 'webm'}
+        entries.reject! {|v| v['file_ext'] == 'swf'}
+        entries.collect {|v| v['tag_ids'] = v['tags'].split(" ") }
+        blocked_tags.each {|tag| entries.reject! { |v| v['tag_ids'].include? tag }}
+        return entries
     end
 
     def download_image(entry)
