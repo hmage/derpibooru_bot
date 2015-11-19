@@ -85,10 +85,12 @@ class E621
     end
 
     def filter_entries(entries)
-        blocked_tags = ["3d"]
-        entries.reject! {|v| v['file_ext'] == 'webm'}
-        entries.reject! {|v| v['file_ext'] == 'swf'}
+        blocked_tags = ["3d", "cgi"]
+        blocked_extensions = ["webm", "swf", "gif"]
+
         entries.collect {|v| v['tag_ids'] = v['tags'].split(" ") }
+
+        entries.reject! {|v| blocked_extensions.include? v['file_ext']}
         blocked_tags.each {|tag| entries.reject! { |v| v['tag_ids'].include? tag }}
         return entries
     end
@@ -127,7 +129,6 @@ if __FILE__ == $0
     ap e621.search('horsecock').count
     ap e621.search('horsecock score:>10 -comic -female')
     ap e621.gettop.count
-    exit
 
     derpibooru = Derpibooru.new(settings)
     ap derpibooru.select_random derpibooru.gettop
