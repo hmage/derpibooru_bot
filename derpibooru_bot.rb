@@ -49,6 +49,7 @@ class DerpibooruBot
     def initialize(bot, settings)
         @bot = bot
         @derpibooru = Derpibooru.new(settings)
+        @e621 = E621.new(settings)
     end
 
     def sendtext(message, text)
@@ -83,6 +84,17 @@ class DerpibooruBot
             f.write response.parsed_response
             f.rewind
             caption_text = "https://derpibooru.org/#{entry['id_number']}\n#{caption}"
+            sendphoto(message, f, caption_text)
+        end
+    end
+
+    def post_image_e621(message, entry, caption)
+        response = @e621.download_image(entry)
+
+        Tempfile.open(["#{entry['id']}", ".#{entry['file_ext']}"]) do |f|
+            f.write response.parsed_response
+            f.rewind
+            caption_text = "https://e621.net/post/show/#{entry['id']}\n#{caption}"
             sendphoto(message, f, caption_text)
         end
     end
@@ -147,6 +159,45 @@ class DerpibooruBot
         sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entry == nil
         post_image(message, entry, caption)
     end
+
+    def yiff(message)
+        @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
+
+        search_terms = parse_search_terms(message)
+
+        begin
+            if search_terms.empty?
+                caption = "Random top scoring image in last 3 days"
+                entries = @e621.gettop()
+                entry = @e621.select_random(entries)
+            else
+                caption = "Random recent image for your search"
+                entries = @e621.search(search_terms)
+                entry = @e621.select_random(entries)
+            end
+        rescue JSON::ParserError => e
+            logerror(e, message)
+            text = "Apologies, but looks like e621.net is down. Please try again in a bit."
+            logto(message, text)
+            @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
+            return
+        rescue RuntimeError => e
+            logerror(e, message)
+            text = "Apologies, but e621.net returned an error:\n\n#{e}."
+            logto(message, text)
+            @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
+            return
+        rescue => e
+            logerror(e, message)
+            text = "Apologies, but an error occurred. Please try again in a bit."
+            logto(message, text)
+            @bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
+            return
+        end
+
+        sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entry == nil
+        post_image_e621(message, entry, caption)
+    end
 end
 
 bot = Telegram::Bot::Client.new(settings['telegram_token'])
@@ -159,6 +210,8 @@ begin
             derpibooru_bot.pony(message, true)
         when /^\/pony\b/
             derpibooru_bot.pony(message)
+        when /^\/yiff\b/
+            derpibooru_bot.yiff(message)
         when /^\/ynope?\b/
             derpibooru_bot.ynop(message)
         when /^\/(start|help)\b/
