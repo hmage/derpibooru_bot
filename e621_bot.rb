@@ -4,7 +4,6 @@
 require 'telegram/bot'
 require 'yaml'
 require 'logger'
-require 'awesome_print'
 
 $: << File.dirname(__FILE__)
 require 'e621_common'
@@ -98,7 +97,6 @@ class E621Bot
     end
 
     def yiff(message)
-        ap message
         @bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
 
         search_terms = parse_search_terms(message)
