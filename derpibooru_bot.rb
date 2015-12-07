@@ -81,7 +81,7 @@ begin
         when /^\/ynope?\b/
             derpibooru_bot.ynop(message)
         when /^\/(start|help)\b/
-            sendtext(bot, message, "Hello! I'm a bot by @hmage that sends you images of ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
+            bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
         end
     end
 rescue => e

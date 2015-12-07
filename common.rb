@@ -49,52 +49,62 @@ def logerror(e, message = nil)
     ## TODO: send SMS notification
 end
 
-def download_image(url)
-    image_url = URI.parse(url)
-    image_url.scheme = "https" if image_url.scheme == nil
 
-    ## TODO: handle errors
-    return HTTParty.get(image_url)
-end
+## extend the bot client
+module Telegram
+  module Bot
+    class Client
 
-def sendtext(bot, message, text)
-    logto(message, text)
-    apiresponse = nil
-    begin
-        apiresponse = bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
-    rescue => e
-        logerror(e, message)
+    def download_image(url)
+        image_url = URI.parse(url)
+        image_url.scheme = "https" if image_url.scheme == nil
+
+        ## TODO: handle errors
+        return HTTParty.get(image_url)
     end
-    return apiresponse
-end
 
-def sendphoto(bot, message, f, caption_text)
-    logto(message, caption_text)
-    apiresponse = nil
-    begin
-        apiresponse = bot.api.sendPhoto(chat_id: message.chat.id, photo: f, caption: caption_text, reply_to_message_id: message.message_id)
-    rescue => e
-        logerror(e, message)
-        errortext = "Apologies, #{e.inspect}"
-        logto(message, errortext)
-        bot.api.sendMessage(chat_id: message.chat.id, text: errortext, reply_to_message_id: message.message_id)
+    def sendtext(message, text)
+        logto(message, text)
+        apiresponse = nil
+        begin
+            apiresponse = api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
+        rescue => e
+            logerror(e, message)
+        end
+        return apiresponse
     end
-    return apiresponse
-end
 
-def post_image(bot, message, entry, site, caption)
-    id = site.get_entry_id(entry)
-    extension = site.get_entry_extension(entry)
-    entry_url = site.get_entry_url(entry)
-    caption_text = "#{entry_url}\n#{caption}"
-
-    response = download_image(site.get_image_url(entry))
-
-    Tempfile.open(["#{id}", ".#{extension}"]) do |f|
-        f.write response.parsed_response
-        f.rewind
-        sendphoto(bot, message, f, caption_text)
+    def sendphoto(message, photo, caption_text)
+        logto(message, caption_text)
+        apiresponse = nil
+        begin
+            apiresponse = api.sendPhoto(chat_id: message.chat.id, photo: photo, caption: caption_text, reply_to_message_id: message.message_id)
+        rescue => e
+            logerror(e, message)
+            errortext = "Apologies, #{e.inspect}"
+            logto(message, errortext)
+            api.sendMessage(chat_id: message.chat.id, text: errortext, reply_to_message_id: message.message_id)
+        end
+        return apiresponse
     end
+
+    def post_image(message, entry, site, caption)
+        id = site.get_entry_id(entry)
+        extension = site.get_entry_extension(entry)
+        entry_url = site.get_entry_url(entry)
+        caption_text = "#{entry_url}\n#{caption}"
+
+        response = download_image(site.get_image_url(entry))
+
+        Tempfile.open(["#{id}", ".#{extension}"]) do |f|
+            f.write response.parsed_response
+            f.rewind
+            sendphoto(message, f, caption_text)
+        end
+    end
+
+    end
+  end
 end
 
 def handle_command(bot, message, handle_empty, handle_search, site, is_nsfw)
@@ -106,7 +116,7 @@ def handle_command(bot, message, handle_empty, handle_search, site, is_nsfw)
         if search_terms.empty?
             caption, entry = handle_empty.call(search_terms, is_nsfw)
         elsif (!is_nsfw && search_terms =~ /\b(explicit|clop|nsfw|sex)\b/)
-            sendtext(bot, message, "You're naughty. Use /clop (you must be older than 18)")
+            bot.sendtext(message, "You're naughty. Use /clop (you must be older than 18)")
             return
         else
             caption, entry = handle_search.call(search_terms, is_nsfw)
@@ -131,6 +141,6 @@ def handle_command(bot, message, handle_empty, handle_search, site, is_nsfw)
         return
     end
 
-    sendtext(bot, message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entry == nil
-    post_image(bot, message, entry, site, caption)
+    bot.sendtext(message, "I am sorry, #{message.from.first_name}, got no images to reply with.") && return if entry == nil
+    bot.post_image(message, entry, site, caption)
 end

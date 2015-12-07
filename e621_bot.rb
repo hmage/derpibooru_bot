@@ -47,7 +47,7 @@ begin
         when /^\/yiff\b/
             e621_bot.yiff(message)
         when /^\/(start|help)\b/
-            sendtext(bot, message, "Hello! I'm a bot that sends you images from e621.net.\n\nTo get a random top scoring picture: /yiff\n\nTo search for horsecock: /yiff horsecock\n\nYou get the idea :)")
+            bot.sendtext(message, "Hello! I'm a bot that sends you images from e621.net.\n\nTo get a random top scoring picture: /yiff\n\nTo search for horsecock: /yiff horsecock\n\nYou get the idea :)")
         end
     end
 rescue => e
