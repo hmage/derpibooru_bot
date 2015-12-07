@@ -7,6 +7,10 @@ class Derpibooru
     base_uri 'https://derpibooru.org'
     format :json
 
+    def name()
+        return "derpibooru.org"
+    end
+
     def initialize(settings)
         @derpibooru_key_sfw  = settings['derpibooru_key_sfw']
         @derpibooru_key_nsfw = settings['derpibooru_key_nsfw']
@@ -33,27 +37,20 @@ class Derpibooru
         return data['search']
     end
 
-    def download_image(entry)
-        image_url = URI.parse(entry['representations']['tall'])
-        image_url.scheme = "https" if image_url.scheme == nil
-
-        ## TODO: handle errors
-        return HTTParty.get(image_url)
+    def get_image_url(entry)
+        return entry['representations']['tall']
     end
 
-    def select_worst(entries)
-        return nil if entries == nil
-        return entries.min {|a,b| a['score'] <=> b['score']}
+    def get_entry_id(entry)
+        return entry['id']
     end
 
-    def select_top(entries)
-        return nil if entries == nil
-        return entries.max {|a,b| a['score'] <=> b['score']}
+    def get_entry_extension(entry)
+        return entry['original_format']
     end
 
-    def select_random(entries)
-        return nil if entries == nil
-        return entries.sample
+    def get_entry_url(entry)
+        return "https://derpibooru.org/#{entry['id_number']}"
     end
 end
 
@@ -64,7 +61,7 @@ if __FILE__ == $0
     raise "Config file #{config_filename} is empty" if settings == false
 
     derpibooru = Derpibooru.new(settings)
-    ap derpibooru.select_random derpibooru.gettop
+    ap select_random derpibooru.gettop
     ap derpibooru.gettop.count                    # must be 50
     ap derpibooru.gettop(true).count              # must be 50
     ap derpibooru.search('Celestia').count        # must be 50

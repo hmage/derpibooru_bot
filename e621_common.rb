@@ -8,15 +8,19 @@ class E621
     base_uri 'https://e621.net'
     format :json
 
+    def name()
+        return "e621.net"
+    end
+
     def initialize(settings)
     end
 
-    def gettop(is_nsfw = false)
+    def gettop()
         date_from = (Time.now - (60*60*24*3)).strftime("%Y-%m-%d")
         return self.search("order:score date:>=#{date_from} -human")
     end
 
-    def search(search_term, is_nsfw = false)
+    def search(search_term)
         search_term_encoded = CGI.escape(search_term)
         url = "/post/index.json?tags=#{search_term_encoded}"
 
@@ -40,27 +44,20 @@ class E621
         return entries
     end
 
-    def download_image(entry)
-        image_url = URI.parse(entry['sample_url'])
-        image_url.scheme = "https" if image_url.scheme == nil
-
-        ## TODO: handle errors
-        return HTTParty.get(image_url)
+    def get_image_url(entry)
+        return entry['sample_url']
     end
 
-    def select_worst(entries)
-        return nil if entries == nil
-        return entries.min {|a,b| a['score'] <=> b['score']}
+    def get_entry_id(entry)
+        return entry['id']
     end
 
-    def select_top(entries)
-        return nil if entries == nil
-        return entries.max {|a,b| a['score'] <=> b['score']}
+    def get_entry_extension(entry)
+        return entry['file_ext']
     end
 
-    def select_random(entries)
-        return nil if entries == nil
-        return entries.sample
+    def get_entry_url(entry)
+        return "https://e621.net/post/show/#{entry['id']}"
     end
 end
 
