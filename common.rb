@@ -36,14 +36,14 @@ end
 
 def logto(message, text = nil)
     name = getname(message)
-    string = "-> (#{getchat(message)}) <#{name}> #{text.inspect}"
+    string = "(#{getchat(message)}) -> <#{name}> #{text.inspect}"
     puts string
     $logger.info string
 end
 
 def logerror(e, message = nil)
     name = getname(message)
-    string = "!!! (#{getchat(message)}) <#{name}> #{e.inspect}"
+    string = "(#{getchat(message)}) !!! <#{name}> #{e.inspect}"
     puts string
     $logger.error string
     ## TODO: send SMS notification
