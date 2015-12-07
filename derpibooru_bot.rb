@@ -7,6 +7,7 @@ require 'logger'
 
 $: << File.dirname(__FILE__)
 require 'derpibooru_common'
+require 'e621_common'
 
 config_filename = "settings.yaml"
 settings = YAML.load_file("settings.yaml")
@@ -171,9 +172,9 @@ class DerpibooruBot
                 entries = @e621.gettop()
                 entry = @e621.select_random(entries)
             else
-                caption = "Random recent image for your search"
+                caption = "Best recent image for your search"
                 entries = @e621.search(search_terms)
-                entry = @e621.select_random(entries)
+                entry = @e621.select_top(entries)
             end
         rescue JSON::ParserError => e
             logerror(e, message)
