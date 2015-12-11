@@ -20,6 +20,11 @@ class E621
         return self.search("order:score date:>=#{date_from} -human")
     end
 
+    def gettop_feral()
+        date_from = (Time.now - (60*60*24*3)).strftime("%Y-%m-%d")
+        return self.search("order:score date:>=#{date_from} -human feral")
+    end
+
     def search(search_term)
         search_term_encoded = CGI.escape(search_term)
         url = "/post/index.json?tags=#{search_term_encoded}"
@@ -31,6 +36,11 @@ class E621
             raise data["reason"] if success == false
         end
         return filter_entries(data)
+    end
+
+    def search_feral(search_terms)
+        search_terms << ' feral'
+        return search(search_terms)
     end
 
     def filter_entries(entries)

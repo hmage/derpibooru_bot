@@ -36,6 +36,19 @@ class E621Bot
 
         handle_command(@bot, message, handle_empty, handle_search, @e621, true)
     end
+
+    def feral(message)
+        handle_empty = lambda do |search_terms, is_nsfw|
+            caption = "Random top scoring image in last 3 days"
+            return caption, select_random(@e621.gettop_feral)
+        end
+        handle_search = lambda do |search_terms, is_nsfw|
+            caption = "Best recent image for your search"
+            return caption, select_top(@e621.search_feral(search_terms))
+        end
+
+        handle_command(@bot, message, handle_empty, handle_search, @e621, true)
+    end
 end
 
 bot = Telegram::Bot::Client.new(settings['telegram_token'])
@@ -46,6 +59,8 @@ begin
         case message.text
         when /^\/yiff\b/
             e621_bot.yiff(message)
+        when /^\/feral\b/
+            e621_bot.feral(message)
         when /^\/(start|help)\b/
             bot.sendtext(message, "Hello! I'm a bot that sends you images from e621.net.\n\nTo get a random top scoring picture: /yiff\n\nTo search for horsecock: /yiff horsecock\n\nYou get the idea :)")
         end
