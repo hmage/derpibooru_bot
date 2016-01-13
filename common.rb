@@ -81,7 +81,7 @@ module Telegram
             apiresponse = api.sendPhoto(chat_id: message.chat.id, photo: photo, caption: caption_text, reply_to_message_id: message.message_id)
         rescue => e
             logerror(e, message)
-            errortext = "Apologies, #{e.inspect}"
+            errortext = "Apologies, #{e.inspect}, go pester @hmage to fix this."
             logto(message, errortext)
             api.sendMessage(chat_id: message.chat.id, text: errortext, reply_to_message_id: message.message_id)
         end
@@ -123,19 +123,19 @@ def handle_command(bot, message, handle_empty, handle_search, site, is_nsfw)
         end
     rescue JSON::ParserError => e
         logerror(e, message)
-        text = "Apologies, but looks like #{site.name} is down. Please try again in a bit."
+        text = "Apologies, but looks like #{site.name} is down. Please try again in a bit. Or contact @hmage."
         logto(message, text)
         bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         return
     rescue RuntimeError => e
         logerror(e, message)
-        text = "Apologies, #{site.name} returned an error:\n\n#{e}."
+        text = "Apologies, #{site.name} returned an error:\n\n#{e}. Contact @hmage."
         logto(message, text)
         bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         return
     rescue => e
         logerror(e, message)
-        text = "Apologies, but an unexpected error occurred. Please try again in a bit."
+        text = "Apologies, but an unexpected error occurred. Please try again in a bit. Contact @hmage."
         logto(message, text)
         bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         return
