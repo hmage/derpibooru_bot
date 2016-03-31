@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'httparty' # telegram/bot is using it anyway, so let's use it too
+require 'memcached'
 
 class E621
     ## https://e621.net/post/index.json?tags=horsecock&page=
@@ -13,6 +14,7 @@ class E621
     end
 
     def initialize(settings)
+        $cache = Memcached.new("localhost:11211")
     end
 
     def gettop()
@@ -30,10 +32,18 @@ class E621
         url = "/post/index.json?tags=#{search_term_encoded}"
 
         ## TODO: handle errors
-        data = self.class.get(url)
-        if data.key?("success")  then
-            success = data["success"]
-            raise data["reason"] if success == false
+        begin
+            full_url = self.class.base_uri()+url
+            rawdata = $cache.get(full_url)
+            data = JSON.parse(rawdata)
+        rescue Memcached::NotFound
+            data = self.class.get(url)
+            if data.key?("success")  then
+                success = data["success"]
+                raise data["reason"] if success == false
+            end
+            full_url = self.class.base_uri()+url
+            $cache.set(full_url, data.to_json, 60)
         end
         return filter_entries(data)
     end

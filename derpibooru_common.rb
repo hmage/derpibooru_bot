@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'httparty' # telegram/bot is using it anyway, so let's use it too
+require 'memcached'
 
 class Derpibooru
     include HTTParty
@@ -14,6 +15,22 @@ class Derpibooru
     def initialize(settings)
         @derpibooru_key_sfw  = settings['derpibooru_key_sfw']
         @derpibooru_key_nsfw = settings['derpibooru_key_nsfw']
+        $cache = Memcached.new("localhost:11211")
+    end
+
+    def cached_get(url)
+        begin
+            full_url = self.class.base_uri()+url
+            rawdata = $cache.get(full_url)
+            data = JSON.parse(rawdata)
+            # puts "Got results from memcached for url #{full_url}"
+        rescue Memcached::NotFound
+            data = self.class.get(url)
+            full_url = self.class.base_uri()+url
+            $cache.set(full_url, data.to_json, 60)
+            # puts "Saved results to memcached for url #{full_url}"
+        end
+        return data
     end
 
     def gettop(is_nsfw = false)
@@ -22,7 +39,7 @@ class Derpibooru
         url << "?key=#{@derpibooru_key_nsfw}" if is_nsfw
 
         ## TODO: handle errors
-        data = self.class.get(url)
+        data = cached_get(url)
         return data['images']
     end
 
@@ -33,7 +50,7 @@ class Derpibooru
         url << "&key=#{@derpibooru_key_nsfw}" if is_nsfw
 
         ## TODO: handle errors
-        data = self.class.get(url)
+        data = cached_get(url)
         return data['search']
     end
 
@@ -57,6 +74,8 @@ end
 if __FILE__ == $0
     # for developing
     require 'awesome_print'
+    $: << File.dirname(__FILE__)
+    require 'common'
     settings = YAML.load_file('settings.yaml')
     raise "Config file #{config_filename} is empty" if settings == false
 
