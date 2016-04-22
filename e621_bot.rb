@@ -40,11 +40,12 @@ class E621Bot
     def feral(message)
         handle_empty = lambda do |search_terms, is_nsfw|
             caption = "Random top scoring image in last 3 days"
-            return caption, select_random(@e621.gettop_feral)
+            return caption, select_random(@e621.gettop("feral"))
         end
         handle_search = lambda do |search_terms, is_nsfw|
             caption = "Best recent image for your search"
-            return caption, select_top(@e621.search_feral(search_terms))
+            search_terms << ' feral'
+            return caption, select_top(@e621.search(search_terms))
         end
 
         handle_command(@bot, message, handle_empty, handle_search, @e621, true)

@@ -17,14 +17,9 @@ class E621
         $cache = Memcached.new("localhost:11211")
     end
 
-    def gettop()
+    def gettop(extra_terms = "")
         date_from = (Time.now - (60*60*24*3)).strftime("%Y-%m-%d")
-        return self.search("order:score date:>=#{date_from} -human")
-    end
-
-    def gettop_feral()
-        date_from = (Time.now - (60*60*24*3)).strftime("%Y-%m-%d")
-        return self.search("order:score date:>=#{date_from} -human feral")
+        return self.search("order:score date:>=#{date_from} -human #{extra_terms}")
     end
 
     def search(search_term)
@@ -46,11 +41,6 @@ class E621
             $cache.set(full_url, data.to_json, 60)
         end
         return filter_entries(data)
-    end
-
-    def search_feral(search_terms)
-        search_terms << ' feral'
-        return search(search_terms)
     end
 
     def filter_entries(entries)
