@@ -40,7 +40,7 @@ class Derpibooru
 
         ## TODO: handle errors
         data = cached_get(url)
-        return data['images']
+        return filter_entries(data['images'])
     end
 
     def search(search_term, is_nsfw = false)
@@ -51,7 +51,18 @@ class Derpibooru
 
         ## TODO: handle errors
         data = cached_get(url)
-        return data['search']
+        return filter_entries(data['search'])
+    end
+
+    def filter_entries(entries)
+        blocked_tags = ["3d", "cgi", "comic", "cub", "vore", "feces", "scat", "castration", "cum on picture", "merch sexploitation", "babyfurs", "foalcon", "infantilism", "diaper", "surgery", "terrible"]
+        blocked_extensions = ["webm", "swf", "gif"]
+
+        entries.collect {|v| v['tag_ids'] = v['tags'].split(", ") }
+
+        entries.reject! {|v| blocked_extensions.include? v['file_ext']}
+        blocked_tags.each {|tag| entries.reject! { |v| v['tag_ids'].include? tag }}
+        return entries
     end
 
     def get_image_url(entry)

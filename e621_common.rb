@@ -54,7 +54,24 @@ class E621
     end
 
     def filter_entries(entries)
-        blocked_tags = ["3d", "cgi", "comic", "cub", "vore", "feces", "scat", "castration"]
+        blocked_tags = [
+            "3d",
+            "3d_(artwork)",
+            "five_nights_at_freddy's",
+            "4chan",
+            "babyfurs",
+            "castration",
+            "cgi",
+            "comic",
+            "cub",
+            "diaper",
+            "feces",
+            "foalcon",
+            "human",
+            "infantilism",
+            "scat",
+            "vore",
+        ]
         blocked_extensions = ["webm", "swf", "gif"]
 
         entries.collect {|v| v['tag_ids'] = v['tags'].split(" ") }
