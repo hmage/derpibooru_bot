@@ -1,3 +1,5 @@
 source 'https://rubygems.org'
 gem 'telegram-bot-ruby'
 gem 'awesome_print'
+gem 'httparty'
+gem 'memcached'
