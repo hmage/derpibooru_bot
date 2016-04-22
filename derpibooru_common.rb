@@ -24,11 +24,14 @@ class Derpibooru
             rawdata = $cache.get(full_url)
             data = JSON.parse(rawdata)
             # puts "Got results from memcached for url #{full_url}"
-        rescue Memcached::NotFound
+        rescue Memcached::NotFound, Memcached::ServerIsMarkedDead
             data = self.class.get(url)
             full_url = self.class.base_uri()+url
-            $cache.set(full_url, data.to_json, 60)
-            # puts "Saved results to memcached for url #{full_url}"
+            begin
+                $cache.set(full_url, data.to_json, 60)
+                # puts "Saved results to memcached for url #{full_url}"
+            rescue Memcached::ServerIsMarkedDead
+            end
         end
         return data
     end

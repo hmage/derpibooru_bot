@@ -31,14 +31,17 @@ class E621
             full_url = self.class.base_uri()+url
             rawdata = $cache.get(full_url)
             data = JSON.parse(rawdata)
-        rescue Memcached::NotFound
+        rescue Memcached::NotFound, Memcached::ServerIsMarkedDead
             data = self.class.get(url)
             if data.key?("success")  then
                 success = data["success"]
                 raise data["reason"] if success == false
             end
             full_url = self.class.base_uri()+url
-            $cache.set(full_url, data.to_json, 60)
+            begin
+                $cache.set(full_url, data.to_json, 60)
+            rescue Memcached::ServerIsMarkedDead
+            end
         end
         return filter_entries(data)
     end
