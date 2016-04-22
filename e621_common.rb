@@ -100,6 +100,7 @@ if __FILE__ == $0
     e621 = E621.new(settings)
     ap e621.search('horsecock').count
     ap e621.search('horsecock score:>10 -comic -female')
+    ap e621.search('offscreen_character')
     ap e621.gettop.count
 
     ## TODO: replace with asserts and make it autotestable
