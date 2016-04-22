@@ -24,7 +24,7 @@ end
 def getchat(message)
     return nil if message == nil
     return nil if message.chat == nil
-    return message.chat.type
+    return "#{message.chat.type}##{message.chat.id} @#{message.chat.username}"
 end
 
 def logfrom(message)
