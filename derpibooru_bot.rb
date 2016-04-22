@@ -52,27 +52,14 @@ class DerpibooruBot
         handle_command(@bot, message, handle_empty, handle_search, @derpibooru, is_nsfw)
     end
 
-    def yiff(message)
+    def yiff(message, custom = "")
         handle_empty = lambda do |search_terms, is_nsfw|
             caption = "Random top scoring image in last 3 days"
-            return caption, select_random(@e621.gettop())
+            return caption, select_random(@e621.gettop(custom))
         end
         handle_search = lambda do |search_terms, is_nsfw|
             caption = "Best recent image for your search"
-            return caption, select_top(@e621.search(search_terms))
-        end
-
-        handle_command(@bot, message, handle_empty, handle_search, @e621, true)
-    end
-
-    def horsecock(message)
-        handle_empty = lambda do |search_terms, is_nsfw|
-            caption = "Random top scoring image in last 3 days"
-            return caption, select_random(@e621.gettop("horsecock"))
-        end
-        handle_search = lambda do |search_terms, is_nsfw|
-            caption = "Best recent image for your search"
-            search_terms << ' horsecock'
+            search_terms << " #{custom}"
             return caption, select_top(@e621.search(search_terms))
         end
 
@@ -95,7 +82,7 @@ begin
         when /^\/ynope?\b/
             derpibooru_bot.ynop(message)
         when /^\/horsecock\b/
-            derpibooru_bot.horsecock(message)
+            derpibooru_bot.yiff(message, "horsecock")
         when /^\/(start|help)\b/
             bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
         end

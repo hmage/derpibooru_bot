@@ -24,27 +24,14 @@ class E621Bot
         @e621 = E621.new(settings)
     end
 
-    def yiff(message)
+    def yiff(message, custom = "")
         handle_empty = lambda do |search_terms, is_nsfw|
             caption = "Random top scoring image in last 3 days"
-            return caption, select_random(@e621.gettop)
+            return caption, select_random(@e621.gettop(custom))
         end
         handle_search = lambda do |search_terms, is_nsfw|
             caption = "Best recent image for your search"
-            return caption, select_top(@e621.search(search_terms))
-        end
-
-        handle_command(@bot, message, handle_empty, handle_search, @e621, true)
-    end
-
-    def feral(message)
-        handle_empty = lambda do |search_terms, is_nsfw|
-            caption = "Random top scoring image in last 3 days"
-            return caption, select_random(@e621.gettop("feral"))
-        end
-        handle_search = lambda do |search_terms, is_nsfw|
-            caption = "Best recent image for your search"
-            search_terms << ' feral'
+            search_terms << " #{custom}"
             return caption, select_top(@e621.search(search_terms))
         end
 
@@ -61,7 +48,9 @@ begin
         when /^\/yiff\b/
             e621_bot.yiff(message)
         when /^\/feral\b/
-            e621_bot.feral(message)
+            e621_bot.yiff(message, "feral")
+        when /^\/horsecock\b/
+            e621_bot.yiff(message, "horsecock")
         when /^\/(start|help)\b/
             bot.sendtext(message, "Hello! I'm a bot that sends you images from e621.net.\n\nTo get a random top scoring picture: /yiff\n\nTo search for horsecock: /yiff horsecock\n\nYou get the idea :)")
         end
