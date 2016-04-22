@@ -86,6 +86,10 @@ class E621
         return entry['file_ext']
     end
 
+    def get_entry_content_type(entry)
+        return ""
+    end
+
     def get_entry_url(entry)
         return "https://e621.net/post/show/#{entry['id']}"
     end

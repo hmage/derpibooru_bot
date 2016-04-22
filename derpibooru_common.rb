@@ -76,6 +76,10 @@ class Derpibooru
         return entry['id']
     end
 
+    def get_entry_content_type(entry)
+        return ""
+    end
+
     def get_entry_extension(entry)
         return entry['original_format']
     end

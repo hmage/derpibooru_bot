@@ -67,7 +67,7 @@ begin
         end
     end
 rescue => e
-    logerror e
+    logexception e
     sleep 1
     retry
 end

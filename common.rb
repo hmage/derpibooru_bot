@@ -1,4 +1,6 @@
 require 'httparty'
+require 'awesome_print'
+require 'tempfile'
 
 def select_worst(entries)
     return nil if entries == nil
@@ -41,14 +43,18 @@ def logto(message, text = nil)
     $logger.info string
 end
 
-def logerror(e, message = nil)
+def logerror(error, message = nil)
     name = getname(message)
-    string = "(#{getchat(message)}) !!! <#{name}> #{e.inspect}"
+    string = "(#{getchat(message)}) !!! <#{name}> #{error}"
     puts string
     $logger.error string
     ## TODO: send SMS notification
 end
 
+def logexception(e, message = nil)
+    logerror(e.message, message)
+    e.backtrace.each { |line| logerror(line, message) }
+end
 
 ## extend the bot client
 module Telegram
@@ -60,7 +66,7 @@ module Telegram
         image_url.scheme = "https" if image_url.scheme == nil
 
         ## TODO: handle errors
-        return HTTParty.get(image_url)
+        return HTTParty.get(image_url.to_s)
     end
 
     def sendtext(message, text)
@@ -69,28 +75,31 @@ module Telegram
         begin
             apiresponse = api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         rescue => e
-            logerror(e, message)
+            logexception(e, message)
         end
         return apiresponse
     end
 
     def sendphoto(message, photo, caption_text)
+        ap message
         logto(message, caption_text)
         apiresponse = nil
         begin
             apiresponse = api.sendPhoto(chat_id: message.chat.id, photo: photo, caption: caption_text, reply_to_message_id: message.message_id)
         rescue => e
-            logerror(e, message)
-            errortext = "Apologies, #{e.inspect}, go pester @hmage to fix this."
+            logexception(e, message)
+            errortext = "Apologies, `#{e.inspect}`, go pester @hmage to fix this."
             logto(message, errortext)
-            api.sendMessage(chat_id: message.chat.id, text: errortext, reply_to_message_id: message.message_id)
+            api.sendMessage(chat_id: message.chat.id, text: errortext, reply_to_message_id: message.message_id, markdown: true)
         end
+        ap apiresponse
         return apiresponse
     end
 
     def post_image(message, entry, site, caption)
         id = site.get_entry_id(entry)
         extension = site.get_entry_extension(entry)
+        content_type = site.get_entry_content_type(entry)
         entry_url = site.get_entry_url(entry)
         caption_text = "#{entry_url}\n#{caption}"
 
@@ -99,7 +108,8 @@ module Telegram
         Tempfile.open(["#{id}", ".#{extension}"]) do |f|
             f.write response.parsed_response
             f.rewind
-            sendphoto(message, f, caption_text)
+            faraday = Faraday::UploadIO.new(f, content_type)
+            apiresponse = sendphoto(message, faraday, caption_text)
         end
     end
 
@@ -122,19 +132,19 @@ def handle_command(bot, message, handle_empty, handle_search, site, is_nsfw)
             caption, entry = handle_search.call(search_terms, is_nsfw)
         end
     rescue JSON::ParserError => e
-        logerror(e, message)
+        logexception(e, message)
         text = "Apologies, but looks like #{site.name} is down. Please try again in a bit. Or contact @hmage."
         logto(message, text)
         bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         return
     rescue RuntimeError => e
-        logerror(e, message)
+        logexception(e, message)
         text = "Apologies, #{site.name} returned an error:\n\n#{e}. Contact @hmage."
         logto(message, text)
         bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         return
     rescue => e
-        logerror(e, message)
+        logexception(e, message)
         text = "Apologies, but an unexpected error occurred. Please try again in a bit. Contact @hmage."
         logto(message, text)
         bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
