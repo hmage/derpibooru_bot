@@ -67,7 +67,10 @@ class E621
         ]
         blocked_extensions = ["webm", "swf", "gif"]
 
-        entries.collect {|v| v['tag_ids'] = v['tags'].split(" ") }
+        entries.collect { |v|
+            v['tag_ids'] = v['tags'].split(" ")
+            v['aspect_ratio'] = v['width'].to_f / v['height'].to_f
+        }
 
         entries.reject! {|v| blocked_extensions.include? v['file_ext']}
         blocked_tags.each {|tag| entries.reject! { |v| v['tag_ids'].include? tag }}
