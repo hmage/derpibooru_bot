@@ -9,6 +9,8 @@ class E621
     base_uri 'https://e621.net'
     format :json
 
+    USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36"
+
     def name()
         return "e621.net"
     end
@@ -32,7 +34,7 @@ class E621
             rawdata = $cache.get(full_url)
             data = JSON.parse(rawdata)
         rescue Memcached::NotFound, Memcached::ServerIsMarkedDead
-            data = self.class.get(url)
+            data = self.class.get(url, headers: {"User-Agent" => USER_AGENT})
             if data.key?("success")  then
                 success = data["success"]
                 raise data["reason"] if success == false
