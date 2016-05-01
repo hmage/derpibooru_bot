@@ -45,13 +45,13 @@ begin
     bot.listen do |message|
         logfrom message
         case message.text
-        when /^\/yiff\b/
+        when /^\/yiff\b/i
             e621_bot.yiff(message)
-        when /^\/feral\b/
+        when /^\/feral\b/i
             e621_bot.yiff(message, "feral")
-        when /^\/horsecock\b/
+        when /^\/horsecock\b/i
             e621_bot.yiff(message, "horsecock")
-        when /^\/(start|help)\b/
+        when /^\/(start|help)\b/i
             bot.sendtext(message, "Hello! I'm a bot that sends you images from e621.net.\n\nTo get a random top scoring picture: /yiff\n\nTo search for horsecock: /yiff horsecock\n\nYou get the idea :)")
         end
     end

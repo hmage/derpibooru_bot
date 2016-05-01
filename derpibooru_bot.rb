@@ -73,17 +73,17 @@ begin
     bot.listen do |message|
         logfrom message
         case message.text
-        when /^\/clop\b/
+        when /^\/clop\b/i
             derpibooru_bot.pony(message, true)
-        when /^\/pony\b/
+        when /^\/pony\b/i
             derpibooru_bot.pony(message)
-        when /^\/yiff\b/
+        when /^\/yiff\b/i
             derpibooru_bot.yiff(message)
-        when /^\/ynope?\b/
+        when /^\/ynope?\b/i
             derpibooru_bot.ynop(message)
-        when /^\/horsecock\b/
+        when /^\/horsecock\b/i
             derpibooru_bot.yiff(message, "horsecock")
-        when /^\/(start|help)\b/
+        when /^\/(start|help)\b/i
             bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
         end
     end
