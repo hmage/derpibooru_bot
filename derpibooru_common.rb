@@ -28,7 +28,7 @@ class Derpibooru
             data = self.class.get(url)
             full_url = self.class.base_uri()+url
             begin
-                $cache.set(full_url, data.to_json, 60)
+                $cache.set(full_url, data.to_json, 600)
                 # puts "Saved results to memcached for url #{full_url}"
             rescue Memcached::ServerIsMarkedDead
             end

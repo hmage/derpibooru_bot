@@ -39,7 +39,7 @@ class E621
             end
             full_url = self.class.base_uri()+url
             begin
-                $cache.set(full_url, data.to_json, 60)
+                $cache.set(full_url, data.to_json, 600)
             rescue Memcached::ServerIsMarkedDead
             end
         end
