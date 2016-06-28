@@ -66,6 +66,9 @@ class E621
             "infantilism",
             "scat",
             "vore",
+            "multiple_images",
+            "tail_mouth",
+            "watersports",
         ]
         blocked_extensions = ["webm", "swf", "gif"]
 
