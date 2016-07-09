@@ -13,7 +13,8 @@ config_filename = "e621.yaml"
 settings = YAML.load_file("e621.yaml")
 raise "Config file #{config_filename} is empty, please create it first" if settings == false
 
-$logger = Logger.new("e621_bot.log", 'weekly')
+logfile = File.expand_path("~/.local/var/log/e621_bot.log")
+$logger = Logger.new(logfile, 'weekly')
 $logger.formatter = proc do |severity, datetime, progname, msg|
     "[#{datetime} #{severity}] #{msg}\n"
 end

@@ -14,7 +14,8 @@ config_filename = "settings.yaml"
 settings = YAML.load_file("settings.yaml")
 raise "Config file #{config_filename} is empty, please create it first" if settings == false
 
-$logger = Logger.new("derpibooru_bot.log", 'weekly')
+logfile = File.expand_path("~/.local/var/log/derpibooru_bot.log")
+$logger = Logger.new(logfile, 'weekly')
 $logger.formatter = proc do |severity, datetime, progname, msg|
     "[#{datetime} #{severity}] #{msg}\n"
 end
