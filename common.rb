@@ -117,19 +117,19 @@ module Telegram
   end
 end
 
-def handle_command(bot, message, handle_empty, handle_search, site, is_nsfw)
+def handle_command(bot, message, handle_empty, handle_search, site, limiter)
     bot.api.sendChatAction(chat_id: message.chat.id, action: "upload_photo")
 
     search_terms = message.text.split(' ')[1..-1].join(' ')
 
     begin
         if search_terms.empty?
-            caption, entry = handle_empty.call(search_terms, is_nsfw)
-        elsif (!is_nsfw && search_terms =~ /\b(explicit|clop|nsfw|sex)\b/)
+            caption, entry = handle_empty.call(search_terms, limiter)
+        elsif (limiter == "safe" && search_terms =~ /\b(explicit|clop|nsfw|sex)\b/)
             bot.sendtext(message, "You're naughty. Use /clop (you must be older than 18)")
             return
         else
-            caption, entry = handle_search.call(search_terms, is_nsfw)
+            caption, entry = handle_search.call(search_terms, limiter)
         end
     rescue JSON::ParserError => e
         logexception(e, message)

@@ -27,12 +27,13 @@ class E621
         return cache_key
     end
 
-    def gettop(extra_terms = "")
+    def gettop(limiter = "")
         date_from = (Time.now - (60*60*24*3)).strftime("%Y-%m-%d")
-        return self.search("order:score date:>=#{date_from} -human #{extra_terms}")
+        return self.search("order:score date:>=#{date_from}", limiter)
     end
 
-    def search(search_term)
+    def search(search_term, limiter = "")
+        search_term << " #{limiter}"
         search_term_encoded = CGI.escape(search_term)
         url = "/post/index.json?tags=#{search_term_encoded}"
         cache_key = get_cache_key(url)

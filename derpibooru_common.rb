@@ -14,8 +14,7 @@ class Derpibooru
     end
 
     def initialize(settings)
-        @derpibooru_key_sfw  = settings['derpibooru_key_sfw']
-        @derpibooru_key_nsfw = settings['derpibooru_key_nsfw']
+        @derpibooru_key = settings['derpibooru_key_nsfw']
         $cache = Memcached.new("localhost:11211")
     end
 
@@ -43,21 +42,25 @@ class Derpibooru
         return data
     end
 
-    def gettop(is_nsfw = false)
-        url = "/lists/top_scoring.json"
-        url << "?key=#{@derpibooru_key_sfw}" if !is_nsfw
-        url << "?key=#{@derpibooru_key_nsfw}" if is_nsfw
+    def gettop(limiter = "safe")
+        date_from = (Time.now - (60*60*24*3)).strftime("%Y-%m-%d")
+        search_term = "#{limiter}, created_at.gte:#{date_from}"
+        search_term_encoded = CGI.escape(search_term)
+        url = "/search.json?q=#{search_term_encoded}"
+        url << "&key=#{@derpibooru_key}"
+        url << "&sf=score"
+        # url = "/lists/top_scoring.json"
 
         ## TODO: handle errors
         data = cached_get(url)
-        return filter_entries(data['images'])
+        return filter_entries(data['search'])
     end
 
-    def search(search_term, is_nsfw = false)
+    def search(search_term, limiter = "safe")
+        search_term << ", #{limiter}"
         search_term_encoded = CGI.escape(search_term)
         url = "/search.json?q=#{search_term_encoded}"
-        url << "&key=#{@derpibooru_key_sfw}" if !is_nsfw
-        url << "&key=#{@derpibooru_key_nsfw}" if is_nsfw
+        url << "&key=#{@derpibooru_key}"
 
         ## TODO: handle errors
         data = cached_get(url)

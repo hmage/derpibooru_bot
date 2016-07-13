@@ -25,18 +25,17 @@ class E621Bot
         @e621 = E621.new(settings)
     end
 
-    def yiff(message, custom = "")
-        handle_empty = lambda do |search_terms, is_nsfw|
+    def yiff(message, limiter = "")
+        handle_empty = lambda do |search_terms, limiter|
             caption = "Random top scoring image in last 3 days"
-            return caption, select_random(@e621.gettop(custom))
+            return caption, select_random(@e621.gettop(limiter))
         end
-        handle_search = lambda do |search_terms, is_nsfw|
+        handle_search = lambda do |search_terms, limiter|
             caption = "Best recent image for your search"
-            search_terms << " #{custom}"
-            return caption, select_top(@e621.search(search_terms))
+            return caption, select_top(@e621.search(search_terms, limiter))
         end
 
-        handle_command(@bot, message, handle_empty, handle_search, @e621, true)
+        handle_command(@bot, message, handle_empty, handle_search, @e621, limiter)
     end
 end
 

@@ -27,44 +27,43 @@ class DerpibooruBot
         @e621 = E621.new(settings)
     end
 
-    def ynop(message, is_nsfw = false)
-        handle_empty = lambda do |search_terms, is_nsfw|
+    def ynop(message, limiter = "safe")
+        handle_empty = lambda do |search_terms, limiter|
             caption = "Worst from top scoring image in last 3 days"
-            return caption, select_worst(@derpibooru.gettop(is_nsfw))
+            return caption, select_worst(@derpibooru.gettop(limiter))
         end
-        handle_search = lambda do |search_terms, is_nsfw|
+        handle_search = lambda do |search_terms, limiter|
             caption = "Worst recent image for your search"
-            return caption, select_worst(@derpibooru.search(search_terms, is_nsfw))
+            return caption, select_worst(@derpibooru.search(search_terms, limiter))
         end
 
-        handle_command(@bot, message, handle_empty, handle_search, @derpibooru, is_nsfw)
+        handle_command(@bot, message, handle_empty, handle_search, @derpibooru, limiter)
     end
 
-    def pony(message, is_nsfw = false)
-        handle_empty = lambda do |search_terms, is_nsfw|
+    def pony(message, limiter = "safe")
+        handle_empty = lambda do |search_terms, limiter|
             caption = "Random top scoring image in last 3 days"
-            return caption, select_random(@derpibooru.gettop(is_nsfw))
+            return caption, select_random(@derpibooru.gettop(limiter))
         end
-        handle_search = lambda do |search_terms, is_nsfw|
+        handle_search = lambda do |search_terms, limiter|
             caption = "Best recent image for your search"
-            return caption, select_top(@derpibooru.search(search_terms, is_nsfw))
+            return caption, select_top(@derpibooru.search(search_terms, limiter))
         end
 
-        handle_command(@bot, message, handle_empty, handle_search, @derpibooru, is_nsfw)
+        handle_command(@bot, message, handle_empty, handle_search, @derpibooru, limiter)
     end
 
-    def yiff(message, custom = "")
-        handle_empty = lambda do |search_terms, is_nsfw|
+    def yiff(message, limiter = "")
+        handle_empty = lambda do |search_terms, limiter|
             caption = "Random top scoring image in last 3 days"
-            return caption, select_random(@e621.gettop(custom))
+            return caption, select_random(@e621.gettop(limiter))
         end
-        handle_search = lambda do |search_terms, is_nsfw|
+        handle_search = lambda do |search_terms, limiter|
             caption = "Best recent image for your search"
-            search_terms << " #{custom}"
-            return caption, select_top(@e621.search(search_terms))
+            return caption, select_top(@e621.search(search_terms, limiter))
         end
 
-        handle_command(@bot, message, handle_empty, handle_search, @e621, true)
+        handle_command(@bot, message, handle_empty, handle_search, @e621, limiter)
     end
 end
 
@@ -75,7 +74,7 @@ begin
         logfrom message
         case message.text
         when /^\/clop\b/i
-            derpibooru_bot.pony(message, true)
+            derpibooru_bot.pony(message, "explicit")
         when /^\/pony\b/i
             derpibooru_bot.pony(message)
         when /^\/yiff\b/i
