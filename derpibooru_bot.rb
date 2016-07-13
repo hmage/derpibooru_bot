@@ -73,14 +73,18 @@ begin
     bot.listen do |message|
         logfrom message
         case message.text
-        when /^\/clop\b/i
-            derpibooru_bot.pony(message, "explicit")
         when /^\/pony\b/i
             derpibooru_bot.pony(message)
-        when /^\/yiff\b/i
-            derpibooru_bot.yiff(message)
+        when /^\/saucy\b/i
+            derpibooru_bot.pony(message, "suggestive")
+        when /^\/clop\b/i
+            derpibooru_bot.pony(message, "explicit")
+
         when /^\/ynope?\b/i
             derpibooru_bot.ynop(message)
+
+        when /^\/yiff\b/i
+            derpibooru_bot.yiff(message)
         when /^\/horsecock\b/i
             derpibooru_bot.yiff(message, "horsecock")
         when /^\/(start|help)\b/i
