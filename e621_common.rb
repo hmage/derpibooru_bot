@@ -2,6 +2,7 @@
 
 require 'httparty' # telegram/bot is using it anyway, so let's use it too
 require 'memcached'
+require 'digest/md5'
 
 class E621
     ## https://e621.net/post/index.json?tags=horsecock&page=
@@ -19,6 +20,13 @@ class E621
         $cache = Memcached.new("localhost:11211")
     end
 
+    def get_cache_key(url)
+        full_url = self.class.base_uri()+url
+        url_hash = Digest::MD5.hexdigest(full_url)
+        cache_key = "e621bot_#{url_hash}"
+        return cache_key
+    end
+
     def gettop(extra_terms = "")
         date_from = (Time.now - (60*60*24*3)).strftime("%Y-%m-%d")
         return self.search("order:score date:>=#{date_from} -human #{extra_terms}")
@@ -27,21 +35,20 @@ class E621
     def search(search_term)
         search_term_encoded = CGI.escape(search_term)
         url = "/post/index.json?tags=#{search_term_encoded}"
+        cache_key = get_cache_key(url)
 
         ## TODO: handle errors
         begin
-            full_url = self.class.base_uri()+url
-            rawdata = $cache.get(full_url)
+            rawdata = $cache.get(cache_key)
             data = JSON.parse(rawdata)
-        rescue Memcached::NotFound, Memcached::ServerIsMarkedDead
+        rescue Memcached::NotFound, Memcached::ServerIsMarkedDead, JSON::ParserError
             data = self.class.get(url, headers: {"User-Agent" => USER_AGENT})
             if data.key?("success")  then
                 success = data["success"]
                 raise data["reason"] if success == false
             end
-            full_url = self.class.base_uri()+url
             begin
-                $cache.set(full_url, data.to_json, 600)
+                $cache.set(cache_key, data.to_json, 600)
             rescue Memcached::ServerIsMarkedDead
             end
         end

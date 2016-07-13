@@ -2,6 +2,7 @@
 
 require 'httparty' # telegram/bot is using it anyway, so let's use it too
 require 'memcached'
+require 'digest/md5'
 
 class Derpibooru
     include HTTParty
@@ -18,17 +19,23 @@ class Derpibooru
         $cache = Memcached.new("localhost:11211")
     end
 
+    def get_cache_key(url)
+        full_url = self.class.base_uri()+url
+        url_hash = Digest::MD5.hexdigest(full_url)
+        cache_key = "derpibot_#{url_hash}"
+        return cache_key
+    end
+
     def cached_get(url)
+        cache_key = get_cache_key(url)
         begin
-            full_url = self.class.base_uri()+url
-            rawdata = $cache.get(full_url)
+            rawdata = $cache.get(cache_key)
             data = JSON.parse(rawdata)
             # puts "Got results from memcached for url #{full_url}"
-        rescue Memcached::NotFound, Memcached::ServerIsMarkedDead
+        rescue Memcached::NotFound, Memcached::ServerIsMarkedDead, JSON::ParserError
             data = self.class.get(url)
-            full_url = self.class.base_uri()+url
             begin
-                $cache.set(full_url, data.to_json, 600)
+                $cache.set(cache_key, data.to_json, 600)
                 # puts "Saved results to memcached for url #{full_url}"
             rescue Memcached::ServerIsMarkedDead
             end
@@ -107,6 +114,7 @@ if __FILE__ == $0
     ap derpibooru.search('animated', true).count  # must be 0
     ap derpibooru.search('suggestive').count      # must be 0
     ap derpibooru.search('suggestive', true).count# must be 50
+    ap derpibooru.search("(artist:calorie, bhm, couch, draconequus, fat, fat boobs, gaming, immobile, large ass, morbidly obese, obese, oc, oc:multiskills, safe) OR (artist:calorie, belly, belly button, chubby, cute, fat, freckles, oc, oc:maggie, pegasus, plate, safe, sleeping, smiling, source needed, stuffed) OR (apron, artist:mellowhen, batter, belly, cookie, couch, fat, flower, food, monochrome, mother and daughter, mother's day, obese, plate, princess twilight, safe, spike, twilight sparkle, twilight velvet) OR (artist:bloatable, belly, bhm, daydreaming, fat, glasses, oc, oc:techno trance, pegasus, safe, simple background, solo, thinking, white background)").count
 
     ## TODO: replace with asserts and make it autotestable
 end
