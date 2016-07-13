@@ -85,7 +85,7 @@ class Derpibooru
     end
 
     def get_entry_url(entry)
-        return "https://derpibooru.org/#{entry['id_number']}"
+        return "https://derpibooru.org/#{entry['id']}"
     end
 end
 
