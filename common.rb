@@ -88,7 +88,7 @@ module Telegram
             apiresponse = api.sendPhoto(chat_id: message.chat.id, photo: photo, caption: caption_text, reply_to_message_id: message.message_id)
         rescue => e
             logexception(e, message)
-            errortext = "Apologies, `#{e.inspect}`, go pester @hmage to fix this."
+            errortext = "Apologies, got an exception:\n\n#{e.class}\n\nGo pester @hmage to fix this."
             logto(message, errortext)
             api.sendMessage(chat_id: message.chat.id, text: errortext, reply_to_message_id: message.message_id, markdown: true)
         end
@@ -139,13 +139,13 @@ def handle_command(bot, message, handle_empty, handle_search, site, is_nsfw)
         return
     rescue RuntimeError => e
         logexception(e, message)
-        text = "Apologies, #{site.name} returned an error:\n\n#{e}. Contact @hmage."
+        text = "Apologies, got an exception:\n\n#{e.class}\n\nContact @hmage."
         logto(message, text)
         bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         return
     rescue => e
         logexception(e, message)
-        text = "Apologies, but an unexpected error occurred. Please try again in a bit. Contact @hmage."
+        text = "Apologies, but an unexpected error occured:\n\n#{e.class}\n\nPlease try again in a bit, or contact @hmage."
         logto(message, text)
         bot.api.sendMessage(chat_id: message.chat.id, text: text, reply_to_message_id: message.message_id, disable_web_page_preview: true)
         return
