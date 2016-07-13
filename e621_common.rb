@@ -118,10 +118,12 @@ if __FILE__ == $0
     raise "Config file #{config_filename} is empty" if settings == false
 
     e621 = E621.new(settings)
-    ap e621.search('horsecock').count
-    ap e621.search('horsecock score:>10 -comic -female')
-    ap e621.search('offscreen_character')
-    ap e621.gettop.count
+    ap e621.gettop.count                                       # must be != 0
+    ap e621.gettop('horsecock').count                          # must be != 0
+    ap e621.gettop('animated').count                           # must be 0
+    ap e621.search('horsecock').count                          # must be != 0
+    ap e621.search('horsecock score:>10 -comic -female').count # must be != 0
+    ap e621.search('animated').count                           # must be 0
 
     ## TODO: replace with asserts and make it autotestable
 end
