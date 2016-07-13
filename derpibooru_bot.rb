@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# gem install telegram-bot-ruby
+# gem install telegram-bot-ruby httparty memcached
 require 'telegram/bot'
 require 'yaml'
 require 'logger'
