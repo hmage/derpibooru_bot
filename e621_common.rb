@@ -77,6 +77,7 @@ class E621
             "multiple_images",
             "tail_mouth",
             "watersports",
+            "young",
         ]
         blocked_extensions = ["webm", "swf", "gif"]
 
