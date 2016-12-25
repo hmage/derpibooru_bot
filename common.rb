@@ -81,7 +81,7 @@ module Telegram
     end
 
     def sendphoto(message, photo, caption_text)
-        ap message
+        #ap message
         logto(message, caption_text)
         apiresponse = nil
         begin
@@ -92,7 +92,7 @@ module Telegram
             logto(message, errortext)
             api.sendMessage(chat_id: message.chat.id, text: errortext, reply_to_message_id: message.message_id, markdown: true)
         end
-        ap apiresponse
+        #ap apiresponse
         return apiresponse
     end
 
