@@ -8,6 +8,11 @@ require 'logger'
 $: << File.dirname(__FILE__)
 require 'e621_common'
 require 'common'
+require 'net/http/persistent'
+
+Telegram::Bot.configure do |config|
+  config.adapter = :net_http_persistent
+end
 
 config_filename = "e621.yaml"
 settings = YAML.load_file("e621.yaml")

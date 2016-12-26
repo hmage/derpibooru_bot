@@ -9,6 +9,11 @@ $: << File.dirname(__FILE__)
 require 'derpibooru_common'
 require 'e621_common'
 require 'common'
+require 'net/http/persistent'
+
+Telegram::Bot.configure do |config|
+  config.adapter = :net_http_persistent
+end
 
 config_filename = "settings.yaml"
 settings = YAML.load_file("settings.yaml")
