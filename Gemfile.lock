@@ -11,8 +11,11 @@ GEM
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     equalizer (0.0.11)
+    ethon (0.10.1)
+      ffi (>= 1.3.0)
     faraday (0.10.0)
       multipart-post (>= 1.2, < 3)
+    ffi (1.9.14)
     httparty (0.14.0)
       multi_xml (>= 0.5.2)
     ice_nine (0.11.2)
@@ -24,6 +27,8 @@ GEM
       faraday
       virtus
     thread_safe (0.3.5)
+    typhoeus (1.1.2)
+      ethon (>= 0.9.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -39,6 +44,7 @@ DEPENDENCIES
   memcached
   net-http-persistent
   telegram-bot-ruby
+  typhoeus
 
 BUNDLED WITH
    1.11.2

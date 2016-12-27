@@ -10,9 +10,12 @@ require 'derpibooru_common'
 require 'e621_common'
 require 'common'
 require 'net/http/persistent'
+require 'typhoeus'
+require 'typhoeus/adapters/faraday'
+
 
 Telegram::Bot.configure do |config|
-  config.adapter = :net_http_persistent
+  config.adapter = :typhoeus
 end
 
 config_filename = "settings.yaml"
