@@ -13,8 +13,7 @@ You get the idea :)
 You will need to have `settings.yaml` file with keys for both Telegram Bot API and Derpibooru, like this:
 ```yaml
 telegram_token: some_secret_telegram_token
-derpibooru_key_sfw: some_secret_derpibooru_key_for_sfw
-derpibooru_key_nsfw: some_secret_derpibooru_key_for_nsfw
+derpibooru_key: some_secret_derpibooru_key
 ```
 
 Replace them with your actual tokens.

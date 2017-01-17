@@ -14,7 +14,7 @@ class Derpibooru
     end
 
     def initialize(settings)
-        @derpibooru_key = settings['derpibooru_key_nsfw']
+        @derpibooru_key = settings['derpibooru_key']
         $cache = Memcached.new("localhost:11211")
     end
 
