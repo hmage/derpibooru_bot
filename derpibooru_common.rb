@@ -68,6 +68,7 @@ class Derpibooru
     end
 
     def filter_entries(entries)
+        return nil if entries == nil
         blocked_tags = ["3d", "cgi", "comic", "cub", "vore", "feces", "scat", "castration", "cum on picture", "merch sexploitation", "babyfurs", "foalcon", "infantilism", "diaper", "surgery", "terrible"]
         blocked_extensions = ["webm", "swf", "gif"]
 
