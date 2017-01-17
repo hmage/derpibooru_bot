@@ -35,7 +35,7 @@ class DerpibooruBot
         @e621 = E621.new(settings)
     end
 
-    def ynop(message, limiter = "safe")
+    def ynop(message, random = false, limiter = "safe")
         handle_empty = lambda do |search_terms, limiter|
             caption = "Worst from top scoring image in last 3 days"
             return caption, select_worst(@derpibooru.gettop(limiter))
@@ -48,27 +48,37 @@ class DerpibooruBot
         handle_command(@bot, message, handle_empty, handle_search, @derpibooru, limiter)
     end
 
-    def pony(message, limiter = "safe")
+    def pony(message, random = false, limiter = "safe")
         handle_empty = lambda do |search_terms, limiter|
             caption = "Random top scoring image in last 3 days"
             return caption, select_random(@derpibooru.gettop(limiter))
         end
         handle_search = lambda do |search_terms, limiter|
-            caption = "Best recent image for your search"
-            return caption, select_top(@derpibooru.search(search_terms, limiter))
+            if (random)
+                caption = "Random recent image for your search"
+                return caption, select_random(@derpibooru.search(search_terms, limiter))
+            else
+                caption = "Best recent image for your search"
+                return caption, select_top(@derpibooru.search(search_terms, limiter))
+            end
         end
 
         handle_command(@bot, message, handle_empty, handle_search, @derpibooru, limiter)
     end
 
-    def yiff(message, limiter = "")
+    def yiff(message, random = false, limiter = "")
         handle_empty = lambda do |search_terms, limiter|
             caption = "Random top scoring image in last 3 days"
             return caption, select_random(@e621.gettop(limiter))
         end
         handle_search = lambda do |search_terms, limiter|
-            caption = "Best recent image for your search"
-            return caption, select_top(@e621.search(search_terms, limiter))
+            if (random)
+                caption = "Random recent image for your search"
+                return caption, select_random(@e621.search(search_terms, limiter))
+            else
+                caption = "Best recent image for your search"
+                return caption, select_top(@e621.search(search_terms, limiter))
+            end
         end
 
         handle_command(@bot, message, handle_empty, handle_search, @e621, limiter)
@@ -83,20 +93,30 @@ begin
         case message.text
         when /^\/pony\b/i
             derpibooru_bot.pony(message)
+        when /^\/randpony\b/i
+            derpibooru_bot.pony(message, true)
         when /^\/saucy\b/i
-            derpibooru_bot.pony(message, "suggestive")
+            derpibooru_bot.pony(message, false, "suggestive")
         when /^\/clop\b/i
-            derpibooru_bot.pony(message, "explicit")
+            derpibooru_bot.pony(message, false, "explicit")
+        when /^\/randclop\b/i
+            derpibooru_bot.pony(message, true, "explicit")
 
         when /^\/ynope?\b/i
             derpibooru_bot.ynop(message)
+        when /^\/ploc\b/i
+            derpibooru_bot.ynop(message, false, "explicit")
 
         when /^\/yiff\b/i
             derpibooru_bot.yiff(message)
+        when /^\/randyiff\b/i
+            derpibooru_bot.yiff(message, true)
         when /^\/horsecock\b/i
-            derpibooru_bot.yiff(message, "horsecock")
+            derpibooru_bot.yiff(message, false, "horsecock")
         when /^\/(start|help)\b/i
-            bot.sendtext(message, "Hello! I'm a bot by @hmage that sends you images of ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo search for Celestia: /pony Celestia\n\nYou get the idea :)")
+            bot.sendtext(message,
+            "Hello! I'm a bot by @hmage that sends ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo get best recent picture with Celestia: /pony Celestia\n\nTo get random recent picture with Celestia: /randpony Celestia\n\nYou get the idea :)"
+            )
         end
     end
 rescue => e
