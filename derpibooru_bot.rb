@@ -83,6 +83,39 @@ class DerpibooruBot
 
         handle_command(@bot, message, handle_empty, handle_search, @e621, limiter)
     end
+
+    def inline_query(message)
+        if message.query.empty?
+            entries = sort_by_score(@derpibooru.gettop())
+        else
+            limiter = "safe"
+            terms = message.query.split(",").map(&:strip).map(&:downcase)
+            limiter = "explicit" if terms.include? 'explicit'
+            entries = sort_by_score(@derpibooru.search(message.query, limiter))
+        end
+        results = entries.map do |entry|
+            if @derpibooru.get_image_url(entry).downcase.end_with?(".gif")
+                Telegram::Bot::Types::InlineQueryResultGif.new(
+                    id: @derpibooru.get_entry_id(entry),
+                    gif_url: @derpibooru.get_image_url(entry),
+                    gif_height: entry['height'],
+                    gif_width: entry['width'],
+                    thumb_url: @derpibooru.get_thumb_url(entry),
+                    caption: @derpibooru.get_entry_url(entry),
+                )
+            else
+                Telegram::Bot::Types::InlineQueryResultPhoto.new(
+                    id: @derpibooru.get_entry_id(entry),
+                    photo_url: @derpibooru.get_image_url(entry),
+                    photo_height: entry['height'],
+                    photo_width: entry['width'],
+                    thumb_url: @derpibooru.get_thumb_url(entry),
+                    caption: @derpibooru.get_entry_url(entry),
+                )
+            end
+        end
+        @bot.api.answer_inline_query(inline_query_id: message.id, results: results)
+    end
 end
 
 bot = Telegram::Bot::Client.new(settings['telegram_token'])
@@ -90,33 +123,38 @@ derpibooru_bot = DerpibooruBot.new(bot, settings)
 begin
     bot.listen do |message|
         logfrom message
-        case message.text
-        when /^\/pony\b/i
-            derpibooru_bot.pony(message)
-        when /^\/randpony\b/i
-            derpibooru_bot.pony(message, true)
-        when /^\/saucy\b/i
-            derpibooru_bot.pony(message, false, "suggestive")
-        when /^\/clop\b/i
-            derpibooru_bot.pony(message, false, "explicit")
-        when /^\/randclop\b/i
-            derpibooru_bot.pony(message, true, "explicit")
+        case message
+        when Telegram::Bot::Types::Message
+            case message.text
+            when /^\/pony\b/i
+                derpibooru_bot.pony(message)
+            when /^\/randpony\b/i
+                derpibooru_bot.pony(message, true)
+            when /^\/saucy\b/i
+                derpibooru_bot.pony(message, false, "suggestive")
+            when /^\/clop\b/i
+                derpibooru_bot.pony(message, false, "explicit")
+            when /^\/randclop\b/i
+                derpibooru_bot.pony(message, true, "explicit")
 
-        when /^\/ynope?\b/i
-            derpibooru_bot.ynop(message)
-        when /^\/ploc\b/i
-            derpibooru_bot.ynop(message, false, "explicit")
+            when /^\/ynope?\b/i
+                derpibooru_bot.ynop(message)
+            when /^\/ploc\b/i
+                derpibooru_bot.ynop(message, false, "explicit")
 
-        when /^\/yiff\b/i
-            derpibooru_bot.yiff(message)
-        when /^\/randyiff\b/i
-            derpibooru_bot.yiff(message, true)
-        when /^\/horsecock\b/i
-            derpibooru_bot.yiff(message, false, "horsecock")
-        when /^\/(start|help)\b/i
-            bot.sendtext(message,
-            "Hello! I'm a bot by @hmage that sends ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo get best recent picture with Celestia: /pony Celestia\n\nTo get random recent picture with Celestia: /randpony Celestia\n\nYou get the idea :)"
-            )
+            when /^\/yiff\b/i
+                derpibooru_bot.yiff(message)
+            when /^\/randyiff\b/i
+                derpibooru_bot.yiff(message, true)
+            when /^\/horsecock\b/i
+                derpibooru_bot.yiff(message, false, "horsecock")
+            when /^\/(start|help)\b/i
+                bot.sendtext(message,
+                "Hello! I'm a bot by @hmage that sends ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo get best recent picture with Celestia: /pony Celestia\n\nTo get random recent picture with Celestia: /randpony Celestia\n\nYou get the idea :)"
+                )
+            end
+        when Telegram::Bot::Types::InlineQuery
+            derpibooru_bot.inline_query(message)
         end
     end
 rescue => e

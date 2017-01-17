@@ -80,7 +80,15 @@ class Derpibooru
     end
 
     def get_image_url(entry)
-        return entry['representations']['tall']
+        image_url = URI.parse(entry['representations']['tall'])
+        image_url.scheme = "https" if image_url.scheme == nil
+        return image_url.to_s
+    end
+
+    def get_thumb_url(entry)
+        image_url = URI.parse(entry['representations']['thumb'])
+        image_url.scheme = "https" if image_url.scheme == nil
+        return image_url.to_s
     end
 
     def get_entry_id(entry)
