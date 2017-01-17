@@ -35,8 +35,16 @@ def getchat(message)
 end
 
 def logfrom(message)
+    string = ""
     name = getname(message)
-    string = "(#{getchat(message)}) <#{name}> #{message.text.inspect}"
+    case message
+    when Telegram::Bot::Types::Message
+        string = "(#{getchat(message)}) <#{name}> #{message.text.inspect}"
+    when Telegram::Bot::Types::InlineQuery
+        string = "(inline) <#{name}> #{message.query.inspect}"
+    when Telegram::Bot::Types::ChosenInlineResult
+        string = "(inline result> <#{name}> #{message.result_id}"
+    end
     puts string
     $logger.info string
 end
