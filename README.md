@@ -19,9 +19,14 @@ derpibooru_key: some_secret_derpibooru_key
 Replace them with your actual tokens.
 
 ## Running
-First, make sure you have `telegram-bot-api` gem installed:
+First, make sure you have required gems installed:
 ```
-gem install telegram-bot-api
+bundle
+```
+
+Or you can install the gems manually:
+```
+gem install telegram-bot-ruby httparty memcached awesome_print net-http-persistent typhoeus
 ```
 
 Then you can proceed with running it:
