@@ -17,6 +17,11 @@ def select_random(entries)
     return entries.sample
 end
 
+def sort_by_score(entries)
+    return nil if entries == nil
+    return entries.sort_by {|obj| obj['score']}.reverse
+end
+
 def getname(message)
     return nil if message == nil
     return "@#{message.from.username}" if message.from.username != nil
