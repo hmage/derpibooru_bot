@@ -12,6 +12,7 @@ require 'common'
 require 'net/http/persistent'
 require 'typhoeus'
 require 'typhoeus/adapters/faraday'
+require 'fileutils'
 
 
 Telegram::Bot.configure do |config|
@@ -23,6 +24,11 @@ settings = YAML.load_file("settings.yaml")
 raise "Config file #{config_filename} is empty, please create it first" if settings == false
 
 logfile = File.expand_path("~/.local/var/log/derpibooru_bot.log")
+dirname = File.dirname(logfile)
+unless File.directory?(dirname)
+  FileUtils.mkdir_p(dirname)
+end
+
 $logger = Logger.new(logfile, 'weekly')
 $logger.formatter = proc do |severity, datetime, progname, msg|
     "[#{datetime} #{severity}] #{msg}\n"
