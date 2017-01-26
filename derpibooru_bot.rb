@@ -14,7 +14,6 @@ require 'typhoeus'
 require 'typhoeus/adapters/faraday'
 require 'fileutils'
 
-
 Telegram::Bot.configure do |config|
   config.adapter = :typhoeus
 end
@@ -154,7 +153,7 @@ begin
                 derpibooru_bot.yiff(message, true)
             when /^\/horsecock\b/i
                 derpibooru_bot.yiff(message, false, "horsecock")
-            when /^\/(start|help)\b/i
+            when /^\/(start|help)[ \t]*$/i
                 bot.sendtext(message,
                 "Hello! I'm a bot by @hmage that sends ponies from derpibooru.org.\n\nTo get a random top scoring picture: /pony\n\nTo get best recent picture with Celestia: /pony Celestia\n\nTo get random recent picture with Celestia: /randpony Celestia\n\nYou get the idea :)"
                 )
