@@ -95,6 +95,10 @@ class E621
         return entry['sample_url']
     end
 
+    def get_thumb_url(entry)
+        return entry['preview_url']
+    end
+
     def get_entry_id(entry)
         return entry['id']
     end
