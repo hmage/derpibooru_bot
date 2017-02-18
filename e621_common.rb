@@ -92,7 +92,7 @@ class E621
     end
 
     def get_image_url(entry)
-        return entry['sample_url']
+        return entry['file_url']
     end
 
     def get_thumb_url(entry)
