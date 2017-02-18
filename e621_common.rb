@@ -79,7 +79,7 @@ class E621
             "watersports",
             "young",
         ]
-        blocked_extensions = ["webm", "swf", "gif"]
+        blocked_extensions = ["webm", "swf"]
 
         entries.collect { |v|
             v['tag_ids'] = v['tags'].split(" ")

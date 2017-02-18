@@ -93,12 +93,16 @@ module Telegram
         return apiresponse
     end
 
-    def sendphoto(message, photo, caption_text)
+    def sendphoto(message, photo, caption_text, extension)
         #ap message
         logto(message, caption_text)
         apiresponse = nil
         begin
-            apiresponse = api.sendPhoto(chat_id: message.chat.id, photo: photo, caption: caption_text, reply_to_message_id: message.message_id)
+            if extension == "gif"
+                apiresponse = api.sendDocument(chat_id: message.chat.id, document: photo, caption: caption_text, reply_to_message_id: message.message_id)
+            else
+                apiresponse = api.sendPhoto(chat_id: message.chat.id, photo: photo, caption: caption_text, reply_to_message_id: message.message_id)
+            end
         rescue => e
             logexception(e, message)
             errortext = "Apologies, got an exception:\n\n#{e.class}\n\nGo pester @hmage to fix this."
@@ -122,7 +126,7 @@ module Telegram
             f.write response.parsed_response
             f.rewind
             faraday = Faraday::UploadIO.new(f, content_type)
-            apiresponse = sendphoto(message, faraday, caption_text)
+            apiresponse = sendphoto(message, faraday, caption_text, extension)
         end
     end
 
