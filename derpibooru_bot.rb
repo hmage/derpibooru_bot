@@ -96,6 +96,7 @@ class DerpibooruBot
             limiter = "safe"
             terms = message.query.split(",").map(&:strip).map(&:downcase)
             limiter = "explicit" if terms.include? 'explicit'
+            limiter = "suggestive" if terms.include? 'suggestive'
             entries = sort_by_score(@derpibooru.search(message.query, limiter))
         end
         results = entries.map do |entry|
