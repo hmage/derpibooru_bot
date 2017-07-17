@@ -141,18 +141,18 @@ if __FILE__ == $0
     raise "Config file #{config_filename} is empty" if settings == false
 
     derpibooru = Derpibooru.new(settings)
-    ap derpibooru.gettop.count                             # must be 50
-    ap derpibooru.gettop("safe").count                     # must be 50
-    ap derpibooru.gettop("explicit").count                 # must be 50
-    ap derpibooru.gettop("suggestive").count               # must be 50
-    ap derpibooru.search('Celestia').count                 # must be 50
-    ap derpibooru.search('Celestia', "explicit").count     # must be 50
-    ap derpibooru.search('animated').count                 # must be 0
-    ap derpibooru.search('animated', "explicit").count     # must be 0
-    ap derpibooru.search('suggestive').count               # must be 0
-    ap derpibooru.search('suggestive', 'suggestive').count # must be 50
-    ap derpibooru.search('suggestive', "explicit").count   # must be 0
-    ap derpibooru.search("(artist:calorie, bhm, couch, draconequus, fat, fat boobs, gaming, immobile, large ass, morbidly obese, obese, oc, oc:multiskills, safe) OR (artist:calorie, belly, belly button, chubby, cute, fat, freckles, oc, oc:maggie, pegasus, plate, safe, sleeping, smiling, source needed, stuffed) OR (apron, artist:mellowhen, batter, belly, cookie, couch, fat, flower, food, monochrome, mother and daughter, mother's day, obese, plate, princess twilight, safe, spike, twilight sparkle, twilight velvet) OR (artist:bloatable, belly, bhm, daydreaming, fat, glasses, oc, oc:techno trance, pegasus, safe, simple background, solo, thinking, white background)").count # must be != 0
+    ap derpibooru.gettop.count == 50
+    ap derpibooru.gettop("safe").count == 50
+    ap derpibooru.gettop("explicit").count == 50
+    ap derpibooru.gettop("suggestive").count == 50
+    ap derpibooru.search('Celestia').count == 50
+    ap derpibooru.search('Celestia', "explicit").count == 50
+    ap derpibooru.search('animated').count == 50
+    ap derpibooru.search('animated', "explicit").count == 50
+    ap derpibooru.search('suggestive').count == 0
+    ap derpibooru.search('suggestive', 'suggestive').count == 50
+    ap derpibooru.search('suggestive', "explicit").count == 0
+    ap derpibooru.search("(artist:calorie, bhm, couch, draconequus, fat, fat boobs, gaming, immobile, large ass, morbidly obese, obese, oc, oc:multiskills, safe) OR (artist:calorie, belly, belly button, chubby, cute, fat, freckles, oc, oc:maggie, pegasus, plate, safe, sleeping, smiling, source needed, stuffed) OR (apron, artist:mellowhen, batter, belly, cookie, couch, fat, flower, food, monochrome, mother and daughter, mother's day, obese, plate, princess twilight, safe, spike, twilight sparkle, twilight velvet) OR (artist:bloatable, belly, bhm, daydreaming, fat, glasses, oc, oc:techno trance, pegasus, safe, simple background, solo, thinking, white background)").count != 0
 
     ## TODO: replace with asserts and make it autotestable
 end
