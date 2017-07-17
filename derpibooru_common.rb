@@ -58,6 +58,37 @@ class Derpibooru
 
     def search(search_term, limiter = "safe")
         search_term << ", #{limiter}"
+        blocked_tags = [
+            "3d",
+            "cgi",
+            "comic",
+            "cub",
+            "vore",
+            "feces",
+            "scat",
+            "castration",
+            "merch sexploitation",
+            "babyfurs",
+            "foalcon",
+            "infantilism",
+            "diaper",
+            "surgery",
+            "terrible",
+            "human",
+            "image macro",
+            "meme",
+            "irl",
+            "irl human",
+            "equestria girls",
+            "ponies in real life",
+            "lined paper",
+            "vector",
+            "hyper breasts",
+            "screencap",
+            "diaper",
+            "webm"
+        ]
+        blocked_tags.each do |tag| search_term << ", -#{tag}" end
         search_term_encoded = CGI.escape(search_term)
         url = "/search.json?q=#{search_term_encoded}"
         url << "&key=#{@derpibooru_key}"
@@ -67,15 +98,8 @@ class Derpibooru
         return filter_entries(data['search'])
     end
 
+    # no-op since derpibooru supports multiple-tag filtering in search request
     def filter_entries(entries)
-        return nil if entries == nil
-        blocked_tags = ["3d", "cgi", "comic", "cub", "vore", "feces", "scat", "castration", "cum on picture", "merch sexploitation", "babyfurs", "foalcon", "infantilism", "diaper", "surgery", "terrible"]
-        blocked_extensions = ["webm", "swf"]
-
-        entries.collect {|v| v['tag_ids'] = v['tags'].split(", ") }
-
-        entries.reject! {|v| blocked_extensions.include? v['file_ext']}
-        blocked_tags.each {|tag| entries.reject! { |v| v['tag_ids'].include? tag }}
         return entries
     end
 
