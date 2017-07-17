@@ -56,7 +56,7 @@ class E621Bot
         if message.query.empty?
             entries = @e621.gettop()
         else
-            entries = @e621.search(message.query)
+            entries = sort_by_score(@e621.search(message.query))
         end
         results = entries.map do |entry|
             if @e621.get_image_url(entry).downcase.end_with?(".gif")
