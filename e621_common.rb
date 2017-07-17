@@ -78,6 +78,7 @@ class E621
             "tail_mouth",
             "watersports",
             "young",
+            "overweight"
         ]
         blocked_extensions = ["webm", "swf"]
 
