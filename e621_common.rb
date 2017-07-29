@@ -10,7 +10,7 @@ class E621
     base_uri 'https://e621.net'
     format :json
 
-    USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36"
+    USER_AGENT = "Derpibooru and E621 Telegram Bot/0.1 (http://github.com/hmage/derpibooru_bot)"
 
     def name()
         return "e621.net"
