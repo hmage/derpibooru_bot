@@ -16,6 +16,35 @@ class Derpibooru
     def initialize(settings)
         @derpibooru_key = settings['derpibooru_key']
         $cache = Memcached.new("localhost:11211")
+        @blocked_tags = [
+            "3d",
+            "babyfurs",
+            "castration",
+            "cgi",
+            "comic",
+            "cub",
+            "diaper",
+            "equestria girls",
+            "feces",
+            "foalcon",
+            "human",
+            "hyper breasts",
+            "image macro",
+            "infantilism",
+            "irl human",
+            "irl",
+            "lined paper",
+            "meme",
+            "merch sexploitation",
+            "ponies in real life",
+            "scat",
+            "screencap",
+            "surgery",
+            "terrible",
+            "vector",
+            "vore",
+            "webm",
+        ]
     end
 
     def get_cache_key(url)
@@ -45,6 +74,7 @@ class Derpibooru
     def gettop(limiter = "safe")
         date_from = (Time.now - (60*60*24*3)).strftime("%Y-%m-%d")
         search_term = "#{limiter}, created_at.gte:#{date_from}"
+        @blocked_tags.each do |tag| search_term << ", -#{tag}" end
         search_term_encoded = CGI.escape(search_term)
         url = "/search.json?q=#{search_term_encoded}"
         url << "&key=#{@derpibooru_key}"
@@ -58,36 +88,7 @@ class Derpibooru
 
     def search(search_term, limiter = "safe")
         search_term << ", #{limiter}"
-        blocked_tags = [
-            "3d",
-            "babyfurs",
-            "castration",
-            "cgi",
-            "comic",
-            "cub",
-            "diaper",
-            "equestria girls",
-            "feces",
-            "foalcon",
-            "human",
-            "hyper breasts",
-            "image macro",
-            "infantilism",
-            "irl human",
-            "irl",
-            "lined paper",
-            "meme",
-            "merch sexploitation",
-            "ponies in real life",
-            "scat",
-            "screencap",
-            "surgery",
-            "terrible",
-            "vector",
-            "vore",
-            "webm",
-        ]
-        blocked_tags.each do |tag| search_term << ", -#{tag}" end
+        @blocked_tags.each do |tag| search_term << ", -#{tag}" end
         search_term_encoded = CGI.escape(search_term)
         url = "/search.json?q=#{search_term_encoded}"
         url << "&key=#{@derpibooru_key}"
