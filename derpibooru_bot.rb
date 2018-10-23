@@ -90,6 +90,7 @@ class DerpibooruBot
     end
 
     def inline_query(message)
+        original = message.query.dup
         if message.query.empty?
             entries = sort_by_score(@derpibooru.gettop())
         else
@@ -99,6 +100,10 @@ class DerpibooruBot
             limiter = "suggestive" if terms.include? 'suggestive'
             entries = sort_by_score(@derpibooru.search(message.query, limiter))
         end
+        kb = [
+            Telegram::Bot::Types::InlineKeyboardButton.new(text: 'Search for more', switch_inline_query_current_chat: original)
+        ]
+        markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: kb)
         results = entries.map do |entry|
             if @derpibooru.get_image_url(entry).downcase.end_with?(".gif")
                 Telegram::Bot::Types::InlineQueryResultGif.new(
@@ -108,6 +113,7 @@ class DerpibooruBot
                     gif_width: entry['width'],
                     thumb_url: @derpibooru.get_thumb_url(entry),
                     caption: @derpibooru.get_entry_url(entry),
+                    reply_markup: markup,
                 )
             else
                 Telegram::Bot::Types::InlineQueryResultPhoto.new(
@@ -117,10 +123,11 @@ class DerpibooruBot
                     photo_width: entry['width'],
                     thumb_url: @derpibooru.get_thumb_url(entry),
                     caption: @derpibooru.get_entry_url(entry),
+                    reply_markup: markup,
                 )
             end
         end
-        @bot.api.answer_inline_query(inline_query_id: message.id, results: results)
+        @bot.api.answer_inline_query(inline_query_id: message.id, results: results, cache_time: 1)
     end
 end
 
