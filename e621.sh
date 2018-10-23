@@ -2,4 +2,7 @@
 
 OURDIR="${BASH_SOURCE%/*}"
 cd "$OURDIR"
-./e621_bot.rb
+while true; do
+    ./e621_bot.rb
+    sleep 1
+done
