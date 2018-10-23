@@ -2,4 +2,7 @@
 
 OURDIR="${BASH_SOURCE%/*}"
 cd "$OURDIR"
-./derpibooru_bot.rb
+while true; do
+    ./derpibooru_bot.rb
+    sleep 1
+done
