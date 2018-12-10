@@ -53,11 +53,16 @@ class E621Bot
     end
 
     def inline_query(message)
+        original = message.query.dup
         if message.query.empty?
             entries = @e621.gettop()
         else
             entries = sort_by_score(@e621.search(message.query))
         end
+        kb = [
+            Telegram::Bot::Types::InlineKeyboardButton.new(text: 'Search for more', switch_inline_query_current_chat: original)
+        ]
+        markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: kb)
         results = entries.map do |entry|
             if @e621.get_image_url(entry).downcase.end_with?(".gif")
                 Telegram::Bot::Types::InlineQueryResultGif.new(
@@ -67,6 +72,7 @@ class E621Bot
                     gif_width: entry['width'],
                     thumb_url: @e621.get_thumb_url(entry),
                     caption: @e621.get_entry_url(entry),
+                    reply_markup: markup,
                 )
             else
                 Telegram::Bot::Types::InlineQueryResultPhoto.new(
@@ -76,6 +82,7 @@ class E621Bot
                     photo_width: entry['width'],
                     thumb_url: @e621.get_thumb_url(entry),
                     caption: @e621.get_entry_url(entry),
+                    reply_markup: markup,
                 )
             end
         end
