@@ -58,8 +58,6 @@ class E621
 
     def filter_entries(entries)
         blocked_tags = [
-            "3d",
-            "3d_(artwork)",
             "five_nights_at_freddy's",
             "4chan",
             "babyfurs",
