@@ -1,4 +1,4 @@
-# Derpibooru Telegram Bot
+# [Derpibooru Telegram Bot](https://t.me/DerpibooruBot)
 
 Hello! I'm a bot by @hmage that sends you images of ponies.
 
@@ -19,19 +19,12 @@ derpibooru_key: some_secret_derpibooru_key
 Replace them with your actual tokens.
 
 ## Running
-First, make sure you have required gems installed:
+First, build the bot:
 ```
-bundle
-```
-
-Or you can install the gems manually:
-```
-gem install telegram-bot-ruby httparty memcached awesome_print net-http-persistent typhoeus
+go build
 ```
 
 Then you can proceed with running it:
 ```
-./derpibooru_bot.rb
+./derpibooru_bot
 ```
-
-It will show in console and log to `derpibooru_bot.log` file all interactions it has.
