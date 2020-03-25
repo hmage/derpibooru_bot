@@ -117,8 +117,8 @@ type derpiEntry struct {
 
 var (
 	bot   telegramBot
-	cache gcache.Cache
-	rl    *rate.RateLimiter
+	cache = gcache.New(100).LRU().Expiration(cacheDuration * time.Second).Build()
+	rl    = rate.New(maxRPS, time.Second)
 )
 
 const (
@@ -134,11 +134,6 @@ var messageHandlers = map[string]func(telegramUpdate) error{
 	"randpony": handleRandPony,
 	"clop":     handleClop,
 	"randclop": handleRandClop,
-}
-
-func init() {
-	cache = gcache.New(100).LRU().Expiration(cacheDuration * time.Second).Build()
-	rl = rate.New(maxRPS, time.Second)
 }
 
 func main() {
