@@ -473,7 +473,7 @@ func getImages(search, limiter string) ([]derpiEntry, error) {
 	url := url.URL{}
 	url.Scheme = "https"
 	url.Host = "derpibooru.org"
-	url.Path = "/search.json"
+	url.Path = "/api/v1/json/search/images"
 	query := url.Query()
 
 	q := []string{}
@@ -538,7 +538,7 @@ func getImages(search, limiter string) ([]derpiEntry, error) {
 
 	// now get actual images json
 	entries := []derpiEntry{}
-	parent := "search"
+	parent := "images"
 	err = json.Unmarshal(*root[parent], &entries)
 	if err != nil {
 		return nil, err

@@ -11,7 +11,7 @@ func TestDerpibooru(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(entries) != 50 {
+	if len(entries) != 48 {
 		t.Fatalf("expected 50 entries, got %d", len(entries))
 	}
 }
