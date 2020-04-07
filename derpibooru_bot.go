@@ -129,6 +129,7 @@ const (
 
 var messageHandlers = map[string]func(telegramUpdate) error{
 	"hello":    handleHello,
+	"help":     handleHello,
 	"start":    handleHello,
 	"pony":     handlePony,
 	"randpony": handleRandPony,
