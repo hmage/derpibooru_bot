@@ -453,6 +453,17 @@ func handleImage(update telegramUpdate, limiter string, forceRandom bool) error 
 	filename := fmt.Sprintf("%d.%s", entry.ID, entry.Original_format)
 
 	start = time.Now()
+	// If we have an mp4 representation, use it instead
+	if v, ok := entry.Representations["mp4"]; ok {
+		mp4URL, err := url.Parse(v)
+		if err != nil {
+			return err
+		}
+		err = bot.sendAnimation(update, mp4URL, filename, caption)
+		if err != nil {
+			return err
+		}
+	}
 	if entry.Original_format == "gif" {
 		err = bot.sendDocument(update, imageURL, filename, caption)
 		if err != nil {
@@ -681,6 +692,20 @@ func (b *telegramBot) sendDocument(update telegramUpdate, documentURL *url.URL, 
 	}
 
 	return b.sendInternal("sendDocument", params, update)
+}
+
+func (b *telegramBot) sendAnimation(update telegramUpdate, animationURL *url.URL, filename string, caption string) error {
+	params := mimeValues{}
+	err := params.Add("animation", animationURL.String())
+	if err != nil {
+		return fmt.Errorf("Failed to add parameter: %w", err)
+	}
+	err = params.Add("caption", caption)
+	if err != nil {
+		return fmt.Errorf("Failed to add parameter: %w", err)
+	}
+
+	return b.sendInternal("sendAnimation", params, update)
 }
 
 func (b *telegramBot) sendInternal(method string, params mimeValues, update telegramUpdate) error {
