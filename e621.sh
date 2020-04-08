@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 OURDIR="${BASH_SOURCE%/*}"
-cd "$OURDIR"
+cd "$OURDIR"/e621
 while true; do
-    ./e621_bot.rb
+    go build && ./e621
     echo ============== restart ==============
     sleep 1
 done
