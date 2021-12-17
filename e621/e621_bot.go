@@ -79,7 +79,7 @@ type telegramInlineQueryResult struct {
 
 type telegramUser struct {
 	// fields we're not interested in are not here
-	ID           int    `json:"id"`
+	ID           int64  `json:"id"`
 	Bot          bool   `json:"is_bot"`
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
